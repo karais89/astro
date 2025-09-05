@@ -23,4 +23,5 @@ export default defineConfig({
 			],
 		}),
 	],
+	base: '/astro/',   // Set to repo name if deploying to GitHub Pages
 });
