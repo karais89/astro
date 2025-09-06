@@ -17,12 +17,12 @@ const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).
 
 const frontmatter = {
   title: '블로그',
-  description: '최근 글 목록과 아카이브·태그 탐색',
+  description: '최근 글, 아카이브 · 태그 탐색',
   editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/index.astro',
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <RecentPosts />
+  <RecentPosts count={6} sections={["blog"]} />
 
   <nav class="chips-nav" aria-label="탐색">
     <a class="chip" href={`${base}blog/archive/`}>아카이브</a>
@@ -34,18 +34,33 @@ const frontmatter = {
     {posts.length === 0 ? (
       <p>게시된 글이 없습니다.</p>
     ) : (
-      <ul>
-        {posts.map((post) => (
-          <li>
-            <a href={hrefFor(post)}>{post.data.title ?? (post as any).slug ?? post.id}</a>
-            {((post.data as any)?.date || (post.data as any)?.createdAt) && (
-              <small style="margin-left: 0.5rem; opacity: 0.7;">
-                {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
-              </small>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div class="grid">
+        {posts.map((post) => {
+          const data: any = post.data as any;
+          const href = hrefFor(post);
+          const title = data?.title ?? (post as any).slug ?? post.id;
+          const d = new Date(((data?.date ?? data?.createdAt) as string) ?? '');
+          const dateStr = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+          const desc = data?.description as string | undefined;
+          const tags = (data?.tags as string[] | undefined) ?? [];
+          return (
+            <article class="card">
+              <div class="meta">
+                {dateStr && <time datetime={dateStr} class="date">{dateStr}</time>}
+              </div>
+              <h3 class="title"><a class="link" href={href}>{title}</a></h3>
+              {desc && <p class="desc">{desc}</p>}
+              {tags.length > 0 && (
+                <div class="tags">
+                  {tags.slice(0, 5).map((t) => (
+                    <a class="tag" href={`${base}tags/${encodeURIComponent(t)}/`}>{t}</a>
+                  ))}
+                </div>
+              )}
+            </article>
+          );
+        })}
+      </div>
     )}
   </section>
 </StarlightPage>
@@ -54,5 +69,18 @@ const frontmatter = {
   .chips-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
   .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
   .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
+
+  .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 48rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .card { border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem; padding: 1rem; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); transition: transform 140ms ease, border-color 140ms ease, background 140ms ease; }
+  .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--sl-color-gray-5); background: color-mix(in hsl, var(--sl-color-gray-7) 55%, transparent); }
+  .meta { display: flex; justify-content: flex-end; }
+  .date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+  .title { margin: 0.25rem 0 0.25rem 0; font-size: 1.05rem; line-height: 1.35; }
+  .link { color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+  .link:hover, .link:focus { text-decoration: underline; }
+  .desc { margin: 0 0 0.5rem 0; color: var(--sl-color-gray-2); }
+  .tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+  .tag { border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 0.8rem; color: var(--sl-color-text); background: var(--sl-color-gray-7); text-decoration: none; }
 </style>
 
