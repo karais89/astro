@@ -31,4 +31,26 @@ const preferBodyH1 = data?.preferBodyH1 === true;
   :global(.content-panel:has(.sr-only)) {
     padding-bottom: 0 !important;
   }
+  /* 헤더 패널의 기본 H1(PreferBodyH1=false) 타이포그래피를 명시적으로 지정 */
+  h1 {
+    margin-top: 1rem;
+    font-size: var(--sl-text-h1);
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+  /* 본문 첫 H1을 헤더 H1과 동일한 타이포로 통일 (preferBodyH1=true 케이스) */
+  :global(.content-panel:has(.sr-only) + .content-panel .sl-heading-wrapper.level-h1 > h1) {
+    display: block !important;
+    padding-inline-end: 0 !important; /* 앵커 아이콘 공간 제거 */
+    margin: 0 !important; /* 상단 간격은 위에서 패널 패딩 제거로 처리 */
+    font-size: var(--sl-text-h1);
+    line-height: var(--sl-line-height-headings);
+    font-weight: 600;
+    color: var(--sl-color-white);
+  }
+  /* 본문 첫 H1의 앵커 아이콘 숨김(헤더 H1과 동일한 룩) */
+  :global(.content-panel:has(.sr-only) + .content-panel .sl-heading-wrapper.level-h1 .sl-anchor-link) {
+    display: none !important;
+  }
 </style>
