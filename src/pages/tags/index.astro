@@ -1,0 +1,57 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL || '/';
+
+const entries = await getCollection('docs', ({ id, data }) => {
+  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+  return inSections && data?.draft !== true;
+});
+
+const tagCounts = new Map<string, number>();
+for (const e of entries) {
+  const tags = (e.data as any)?.tags as string[] | undefined;
+  if (!Array.isArray(tags)) continue;
+  for (const raw of tags) {
+    const t = String(raw).trim();
+    if (!t) continue;
+    tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+  }
+}
+const tags = Array.from(tagCounts.entries())
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name));
+
+const frontmatter = {
+  title: 'Tags',
+  description: 'Browse posts by tag across TIL, coding-test, and blog.',
+  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/tags/index.astro',
+};
+---
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <section aria-labelledby="tags-heading">
+    <h1 id="tags-heading">All Tags</h1>
+    {tags.length === 0 ? (
+      <p>No tags found.</p>
+    ) : (
+      <ul class="tags">
+        {tags.map(({ name, count }) => (
+          <li>
+            <a class="tag" href={`${base}tags/${encodeURIComponent(name)}/`}>{name}</a>
+            <span class="count" aria-label="count">{count}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <style>
+    .tags { list-style: none; padding: 0; margin: 1rem 0; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+    .tags li { display: flex; align-items: center; gap: 0.5rem; }
+    .tag { text-decoration: none; color: var(--sl-color-text); border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.25rem 0.75rem; font-weight: 600; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); }
+    .tag:hover, .tag:focus { border-color: var(--sl-color-gray-5); }
+    .count { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+  </style>
+</StarlightPage>
+

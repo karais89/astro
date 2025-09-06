@@ -1,0 +1,66 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('docs', ({ id, data }) => {
+    const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+    return inSections && data?.draft !== true;
+  });
+  const tags = new Set<string>();
+  for (const e of entries) {
+    const list = (e.data as any)?.tags as string[] | undefined;
+    if (!Array.isArray(list)) continue;
+    for (const t of list) {
+      const name = String(t).trim();
+      if (name) tags.add(name);
+    }
+  }
+  return Array.from(tags).map((tag) => ({ params: { tag } }));
+}
+
+const base = import.meta.env.BASE_URL || '/';
+const { tag } = Astro.params;
+const target = String(tag ?? '');
+
+const entries = await getCollection('docs', ({ id, data }) => {
+  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+  if (!(inSections && data?.draft !== true)) return false;
+  const tags = (data as any)?.tags as string[] | undefined;
+  return Array.isArray(tags) && tags.some((t) => String(t).trim() === target);
+});
+
+const getDate = (e: any) => new Date((e.data?.date ?? e.data?.createdAt ?? 0) as string | number);
+const posts = entries
+  .filter((e) => e.id !== 'index' && !e.id.endsWith('/index'))
+  .sort((a, b) => Number(getDate(b)) - Number(getDate(a)));
+
+const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
+
+const frontmatter = {
+  title: `Tag: ${target}`,
+  description: `Posts tagged with "${target}"`,
+  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/tags/[tag].astro',
+};
+---
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <p><a href={`${base}tags/`}>← All tags</a></p>
+
+  {posts.length === 0 ? (
+    <p>No posts found for this tag.</p>
+  ) : (
+    <ul>
+      {posts.map((post) => (
+        <li>
+          <a href={hrefFor(post)}>{(post as any).data?.title ?? (post as any).slug ?? post.id}</a>
+          {((post.data as any)?.date || (post.data as any)?.createdAt) && (
+            <small style="margin-left: 0.5rem; opacity: 0.7;">
+              {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
+            </small>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</StarlightPage>
+

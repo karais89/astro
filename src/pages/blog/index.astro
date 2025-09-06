@@ -18,7 +18,7 @@ const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).
 const frontmatter = {
   title: '블로그',
   description: '최근 글과 전체 목록, 아카이브로 이동',
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/index.astro',
+  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/blog/index.astro',
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
@@ -28,6 +28,9 @@ const frontmatter = {
     <h2 id="archive-link">아카이브</h2>
     <p>
       연도별 글 모아보기: <a href={`${base}blog/archive/`}>아카이브로 이동</a>
+    </p>
+    <p>
+      태그로 보기: <a href={`${base}tags/`}>Tags</a>
     </p>
   </section>
 

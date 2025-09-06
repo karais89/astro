@@ -16,10 +16,15 @@ const years = Array.from(
 const frontmatter = {
   title: '블로그 아카이브',
   description: '연도별로 블로그 글을 모아봅니다',
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/archive/index.astro',
+  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/blog/archive/index.astro',
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <p>
+    <a href={`${base}blog/`}>← 블로그</a>
+    <span style="opacity:0.6;"> · </span>
+    <a href={`${base}tags/`}>Tags</a>
+  </p>
   {years.length === 0 ? (
     <p>아카이브가 비어 있습니다.</p>
   ) : (

@@ -32,7 +32,7 @@ const posts = (await getCollection('docs', ({ id, data }) => id.startsWith('blog
 const frontmatter = {
   title: `${targetYear}년 블로그 아카이브`,
   description: `${targetYear}년에 작성된 글 목록`,
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/archive/[year].astro',
+  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/blog/archive/[year].astro',
 };
 const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
 ---
