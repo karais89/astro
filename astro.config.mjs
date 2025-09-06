@@ -7,7 +7,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'My Docs',
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/karais89/astro' }],
       components: {
         Header: './src/components/starlight/Header.astro',
       },
@@ -15,7 +15,7 @@ export default defineConfig({
       lastUpdated: true,
       // Add "Edit this page" links using your repo
       editLink: {
-        baseUrl: 'https://github.com/Lonpeach/astro/edit/main/',
+        baseUrl: 'https://github.com/karais89/astro/edit/main/',
       },
       // Enable on-page table of contents in the sidebar
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 4 },
