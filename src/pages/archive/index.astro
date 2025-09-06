@@ -1,0 +1,37 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL || '/';
+
+// Collect all posts across sections (til, coding-test, blog)
+const entries = (await getCollection('docs', ({ id, data }) => {
+  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+  return inSections && (data as any)?.draft !== true;
+}))
+  .filter((e) => (e.data as any)?.date || (e.data as any)?.createdAt);
+
+const years = Array.from(
+  new Set(
+    entries.map((e) => new Date(((e.data as any)?.date ?? (e.data as any)?.createdAt) as string).getFullYear())
+  )
+).sort((a, b) => b - a);
+
+const frontmatter = {
+  title: '전체 아카이브',
+  description: '연도별 전체 글 모아보기 (TIL, 코딩테스트, 블로그)',
+  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/archive/index.astro',
+};
+---
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  {years.length === 0 ? (
+    <p>아카이브가 비어 있습니다.</p>
+  ) : (
+    <ul>
+      {years.map((year) => (
+        <li><a href={`${base}archive/${year}/`}>{year}</a></li>
+      ))}
+    </ul>
+  )}
+</StarlightPage>
+

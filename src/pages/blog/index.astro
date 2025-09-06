@@ -30,11 +30,6 @@ const frontmatter = {
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
   <RecentPosts count={RECENT_COUNT} sections={["blog"]} variant="list" />
 
-  <nav class="chips-nav" aria-label="탐색">
-    <a class="chip" href={`${base}blog/archive/`}>아카이브</a>
-    <a class="chip" href={`${base}tags/`}>태그</a>
-  </nav>
-
   <section aria-labelledby="all-posts">
     <h2 id="all-posts">전체 글</h2>
     {posts.length === 0 ? (
@@ -87,10 +82,6 @@ const frontmatter = {
 </StarlightPage>
 
 <style>
-  .chips-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0 1.25rem; }
-  .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 35%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
-  .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
-
   .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
   @media (min-width: 48rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
   .card { border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem; padding: 1rem; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); transition: transform 140ms ease, border-color 140ms ease, background 140ms ease; }
