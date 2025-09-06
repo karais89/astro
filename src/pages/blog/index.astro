@@ -15,6 +15,8 @@ const posts = (await getCollection('docs', ({ id, data }) => id.startsWith('blog
   });
 const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
 
+const RECENT_COUNT = 6;
+
 const frontmatter = {
   title: '블로그',
   description: '최근 글, 아카이브 · 태그 탐색',
@@ -22,7 +24,7 @@ const frontmatter = {
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <RecentPosts count={6} sections={["blog"]} />
+  <RecentPosts count={RECENT_COUNT} sections={["blog"]} variant="list" />
 
   <nav class="chips-nav" aria-label="탐색">
     <a class="chip" href={`${base}blog/archive/`}>아카이브</a>
@@ -35,7 +37,7 @@ const frontmatter = {
       <p>게시된 글이 없습니다.</p>
     ) : (
       <div class="grid">
-        {posts.map((post) => {
+        {posts.slice(RECENT_COUNT).map((post) => {
           const data: any = post.data as any;
           const href = hrefFor(post);
           const title = data?.title ?? (post as any).slug ?? post.id;
@@ -66,8 +68,8 @@ const frontmatter = {
 </StarlightPage>
 
 <style>
-  .chips-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
-  .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+  .chips-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0 1.25rem; }
+  .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 35%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
   .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
 
   .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }

@@ -4,9 +4,10 @@ import { getCollection } from 'astro:content';
 interface Props {
   count?: number;
   sections?: string[]; // e.g., ['til'] or ['til', 'blog']
+  variant?: 'cards' | 'list';
 }
 
-const { count = 5, sections } = Astro.props as Props;
+const { count = 5, sections, variant = 'cards' } = Astro.props as Props;
 
 const entries = await getCollection('docs', ({ id, data }) => {
   const allowed = Array.isArray(sections) && sections.length > 0
@@ -24,6 +25,35 @@ const recent = entries
 
 {recent.length === 0 ? (
   <p>게시된 글이 없습니다.</p>
+) : variant === 'list' ? (
+  <ul class="list">
+    {recent.map((e) => {
+      const base = import.meta.env.BASE_URL || '/';
+      let path = e.id as string;
+      if (path.endsWith('/index')) path = path.slice(0, -('/index'.length));
+      const href = `${base}${path}/`;
+      const d = getDate(e);
+      const dateStr = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+      const desc = e.data?.description as string | undefined;
+      const tags = (e.data?.tags as string[] | undefined) ?? [];
+      return (
+        <li class="list-item">
+          <div class="list-main">
+            <a href={href} class="list-link">{e.data.title ?? path}</a>
+            {desc && <p class="list-desc">{desc}</p>}
+            {tags.length > 0 && (
+              <div class="list-tags">
+                {tags.slice(0, 4).map((t) => (
+                  <a class="tag" href={`${base}tags/${encodeURIComponent(t)}/`}>{t}</a>
+                ))}
+              </div>
+            )}
+          </div>
+          {dateStr && <time datetime={dateStr} class="list-date">{dateStr}</time>}
+        </li>
+      );
+    })}
+  </ul>
 ) : (
   <div class="grid">
     {recent.map((e) => {
@@ -56,6 +86,7 @@ const recent = entries
 )}
 
 <style>
+  /* Cards variant */
   .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
   @media (min-width: 48rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
   .card { border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem; padding: 1rem; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); transition: transform 140ms ease, border-color 140ms ease, background 140ms ease; }
@@ -68,5 +99,15 @@ const recent = entries
   .desc { margin: 0 0 0.5rem 0; color: var(--sl-color-gray-2); }
   .tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
   .tag { border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 0.8rem; color: var(--sl-color-text); background: var(--sl-color-gray-7); text-decoration: none; }
+
+  /* List variant */
+  .list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  .list-item { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 1rem; padding: 0.75rem 0.25rem; border-bottom: 1px solid var(--sl-color-gray-6); }
+  .list-main { min-width: 0; }
+  .list-link { color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+  .list-link:hover, .list-link:focus { text-decoration: underline; }
+  .list-desc { margin: 0.125rem 0 0.375rem; color: var(--sl-color-gray-2); }
+  .list-tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+  .list-date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; white-space: nowrap; align-self: start; }
 </style>
 

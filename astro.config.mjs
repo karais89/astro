@@ -24,10 +24,6 @@ export default defineConfig({
       // Sidebar: hide Blog group; access Blog via top navbar only
       sidebar: [
         {
-          label: 'Intro',
-          items: [{ label: '소개', slug: 'index' }],
-        },
-        {
           label: 'TIL',
           autogenerate: { directory: 'til' },
         },
