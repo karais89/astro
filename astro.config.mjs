@@ -10,15 +10,20 @@ export default defineConfig({
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
 			sidebar: [
 				{
-					label: 'Guides',
-					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
-					],
+					label: 'Intro',
+					items: [{ label: '소개', slug: 'index' }],
 				},
 				{
-					label: 'Reference',
-					autogenerate: { directory: 'reference' },
+					label: 'TIL',
+					autogenerate: { directory: 'til' },
+				},
+				{
+					label: '코딩테스트',
+					autogenerate: { directory: 'coding-test' },
+				},
+				{
+					label: '블로그',
+					autogenerate: { directory: 'blog' },
 				},
 			],
 		}),
