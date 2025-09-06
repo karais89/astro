@@ -1,0 +1,51 @@
+---
+const base = import.meta.env.BASE_URL || '/';
+---
+
+<section class="section-cards" aria-labelledby="section-cards-heading">
+  <h2 id="section-cards-heading" class="visually-hidden">섹션 안내</h2>
+  <div class="grid">
+    <a class="card" href={`${base}til/`}>
+      <span class="icon" aria-hidden="true">📘</span>
+      <h3 class="title">TIL</h3>
+      <p class="desc">하루의 배움을 짧게 남겨요. 꾸준함이 힘.</p>
+      <span class="more">바로가기 →</span>
+    </a>
+    <a class="card" href={`${base}coding-test/`}>
+      <span class="icon" aria-hidden="true">🧩</span>
+      <h3 class="title">코딩테스트</h3>
+      <p class="desc">알고리즘 풀이를 유형별로 정리합니다.</p>
+      <span class="more">문제 보러가기 →</span>
+    </a>
+    <a class="card" href={`${base}blog/`}>
+      <span class="icon" aria-hidden="true">✍️</span>
+      <h3 class="title">블로그</h3>
+      <p class="desc">가벼운 생각과 메모를 담아요.</p>
+      <span class="more">최근 글 읽기 →</span>
+    </a>
+  </div>
+
+  <style>
+    .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+    .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 48rem) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    .card {
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 0.25rem;
+      padding: 1rem;
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 0.9rem;
+      text-decoration: none;
+      color: var(--sl-color-text);
+      background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent);
+      transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+    }
+    .card:hover, .card:focus { transform: translateY(-2px); border-color: var(--sl-color-gray-5); background: color-mix(in hsl, var(--sl-color-gray-7) 55%, transparent); }
+    .icon { font-size: 1.35rem; line-height: 1; }
+    .title { margin: 0.25rem 0 0 0; font-size: 1.1rem; }
+    .desc { margin: 0.25rem 0 0.75rem 0; color: var(--sl-color-gray-2); }
+    .more { color: var(--sl-color-text); font-weight: 700; }
+  </style>
+</section>
+

@@ -1,0 +1,103 @@
+---
+import { getCollection } from 'astro:content';
+
+interface Props {
+  count?: number;
+}
+
+const base = import.meta.env.BASE_URL || '/';
+const { count = 6 } = Astro.props as Props;
+
+const entries = await getCollection('docs', ({ id, data }) => {
+  const allowed = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+  return allowed && data?.draft !== true;
+});
+
+const getDate = (e: any) => new Date((e.data?.date ?? e.data?.createdAt ?? 0) as string | number);
+const recent = entries
+  .filter((e) => !e.id.endsWith('/index'))
+  .sort((a, b) => Number(getDate(b)) - Number(getDate(a)))
+  .slice(0, count);
+
+function toPath(id: string) {
+  return id.endsWith('/index') ? id.slice(0, -('/index'.length)) : id;
+}
+function sectionOf(id: string) {
+  if (id.startsWith('til/')) return 'til';
+  if (id.startsWith('coding-test/')) return 'coding-test';
+  return 'blog';
+}
+---
+
+<section class="recent-grid" aria-labelledby="recent-grid-heading">
+  <div class="head">
+    <h2 id="recent-grid-heading">최근 글</h2>
+    <nav class="quick">
+      <a href={`${base}til/`}>TIL</a>
+      <a href={`${base}coding-test/`}>코딩테스트</a>
+      <a href={`${base}blog/`}>블로그</a>
+    </nav>
+    <a class="more" href={`${base}blog/`}>전체 보기 →</a>
+  </div>
+
+  {recent.length === 0 ? (
+    <p>아직 게시된 글이 없어요.</p>
+  ) : (
+    <div class="grid">
+      {recent.map((e) => {
+        const path = toPath(e.id);
+        const href = `${base}${path}/`;
+        const d = getDate(e);
+        const dateStr = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+        const desc = e.data?.description as string | undefined;
+        const tags = (e.data?.tags as string[] | undefined) ?? [];
+        const sec = sectionOf(e.id);
+        return (
+          <a href={href} class={`card ${sec}`}>
+            <div class="meta">
+              <span class={`badge ${sec}`}>{sec === 'til' ? 'TIL' : sec === 'coding-test' ? '코딩테스트' : '블로그'}</span>
+              {dateStr && <time datetime={dateStr} class="date">{dateStr}</time>}
+            </div>
+            <h3 class="title">{e.data.title ?? path}</h3>
+            {desc && <p class="desc">{desc}</p>}
+            {tags.length > 0 && (
+              <div class="tags">
+                {tags.slice(0, 3).map((t) => (
+                  <span class="tag">{t}</span>
+                ))}
+              </div>
+            )}
+          </a>
+        );
+      })}
+    </div>
+  )}
+
+  <style>
+    .head { display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .quick { display: flex; gap: 0.75rem; justify-self: end; }
+    .quick a { color: var(--sl-color-text); text-decoration: none; border-bottom: 1px dashed var(--sl-color-gray-5); }
+    .quick a:hover, .quick a:focus { border-bottom-style: solid; }
+    .more { justify-self: end; text-decoration: none; color: var(--sl-color-text); font-weight: 700; border-bottom: 1px solid transparent; }
+    .more:hover, .more:focus { border-bottom-color: var(--sl-color-text); }
+
+    .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+    @media (min-width: 48rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .card { display: block; padding: 1rem; border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem; text-decoration: none; color: var(--sl-color-text); background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); transition: transform 140ms ease, border-color 140ms ease, background 140ms ease; }
+    .card:hover, .card:focus { transform: translateY(-2px); border-color: var(--sl-color-gray-5); background: color-mix(in hsl, var(--sl-color-gray-7) 55%, transparent); }
+
+    .meta { display: flex; gap: 0.5rem; align-items: center; justify-content: space-between; margin-bottom: 0.25rem; }
+    .badge { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid; }
+    .badge.til { color: hsl(217 90% 45%); border-color: hsl(217 90% 75%); background: color-mix(in hsl, hsl(217 90% 60%) 12%, transparent); }
+    .badge.coding-test { color: hsl(190 70% 32%); border-color: hsl(190 70% 65%); background: color-mix(in hsl, hsl(190 70% 50%) 12%, transparent); }
+    .badge.blog { color: hsl(270 60% 40%); border-color: hsl(270 60% 70%); background: color-mix(in hsl, hsl(270 60% 55%) 12%, transparent); }
+
+    .title { margin: 0.25rem 0 0.25rem 0; font-size: 1.05rem; line-height: 1.35; }
+    .desc { margin: 0 0 0.5rem 0; color: var(--sl-color-gray-2); }
+    .tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+    .tag { border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 0.8rem; color: var(--sl-color-gray-2); background: var(--sl-color-gray-7); }
+    .date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+  </style>
+</section>
+

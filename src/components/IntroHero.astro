@@ -1,0 +1,95 @@
+---
+interface Action {
+  text: string;
+  href: string;
+}
+
+interface Props {
+  title?: string;
+  subtitle?: string;
+  action?: Action; // single primary action
+  avatarSrc?: string;
+  showAvatar?: boolean;
+  showSectionChips?: boolean;
+}
+
+const base = import.meta.env.BASE_URL || '/';
+
+const {
+  title = '작게, 자주, 꾸준히 쌓는 개발 기록',
+  subtitle = 'TIL · 코딩테스트 · 블로그 — 오늘도 한 걸음.',
+  avatarSrc = `${base}avatar.jpg`,
+  showAvatar = true,
+  showSectionChips = true,
+} = Astro.props as Props;
+---
+
+<section class="intro-hero" aria-labelledby="intro-hero-heading">
+  <div class="left">
+    {showAvatar && (
+      <img src={avatarSrc} alt="Avatar" width="84" height="84" class="avatar" loading="eager" />
+    )}
+    <h1 id="intro-hero-heading" class="title">{title}</h1>
+    <p class="subtitle">{subtitle}</p>
+    <div class="cta">
+    </div>
+    {showSectionChips && (
+      <nav class="chips" aria-label="섹션 바로가기">
+        <a class="chip" href={`${base}til/`}>TIL</a>
+        <a class="chip" href={`${base}coding-test/`}>코딩테스트</a>
+        <a class="chip" href={`${base}blog/`}>블로그</a>
+      </nav>
+    )}
+  </div>
+  <div class="right" aria-hidden="true">
+    <svg viewBox="0 0 440 320" class="art" role="img">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="1" y1="0" y2="1">
+          <stop offset="0%" stop-color="var(--sl-color-gray-4)" />
+          <stop offset="100%" stop-color="var(--sl-color-gray-6)" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="440" height="320" rx="16" fill="none" stroke="var(--sl-color-gray-6)" />
+      <g stroke="url(#g1)" fill="none" stroke-width="2">
+        <path d="M20 60 Q120 10 220 60 T420 60" />
+        <path d="M20 120 Q120 70 220 120 T420 120" />
+        <path d="M20 180 Q120 130 220 180 T420 180" />
+        <path d="M20 240 Q120 190 220 240 T420 240" />
+      </g>
+      <g fill="var(--sl-color-gray-3)">
+        <circle cx="56" cy="56" r="6" />
+        <circle cx="80" cy="56" r="6" />
+        <circle cx="104" cy="56" r="6" />
+      </g>
+    </svg>
+  </div>
+
+  <style>
+    .intro-hero {
+      --accent: hsl(217 90% 60%);
+      display: grid;
+      gap: 1.5rem;
+      align-items: center;
+      padding: clamp(1.25rem, 2vw + 1rem, 2rem);
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 1rem;
+      background: linear-gradient(180deg, color-mix(in hsl, var(--accent) 10%, transparent), transparent);
+    }
+    @media (min-width: 64rem) { .intro-hero { grid-template-columns: 1.1fr 1fr; } }
+    .title { margin: 0; font-size: clamp(1.9rem, 1.2rem + 2.2vw, 2.7rem); line-height: 1.2; }
+    .subtitle { margin: 0.5rem 0 1rem 0; color: var(--sl-color-gray-2); }
+    .cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; align-items: center; }
+    .btn { display: inline-block; padding: 0.62rem 1rem; border-radius: 0.66rem; font-weight: 700; text-decoration: none; transition: transform 120ms ease, background 120ms ease; }
+    .btn:active { transform: translateY(1px); }
+    .btn-primary { background: var(--accent); border: 2px solid var(--accent); color: white; }
+    .btn-primary:hover, .btn-primary:focus { background: color-mix(in hsl, var(--accent) 90%, white); border-color: color-mix(in hsl, var(--accent) 90%, white); }
+    .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem; }
+    .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+    .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
+    .avatar { width: 84px; height: 84px; border-radius: 999px; border: 2px solid var(--accent); display: block; margin-bottom: 0.75rem; background: color-mix(in hsl, var(--accent) 15%, transparent); object-fit: cover; }
+    .right { display: none; }
+    @media (min-width: 48rem) { .right { display: block; } }
+    .art { width: 100%; height: auto; }
+  </style>
+</section>
+

@@ -1,34 +1,18 @@
 ---
-title: Intro
+title: Home
 description: TIL, 코딩테스트, 블로그를 한곳에서 기록하고 탐색하는 개인 개발 아카이브.
 template: splash
+editUrl: false
+lastUpdated: false
+prev: false
+next: false
+tableOfContents: false
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
-import RecentPosts from '../../components/RecentPosts.astro';
+import IntroHero from '../../components/IntroHero.astro';
+import RecentGrid from '../../components/RecentGrid.astro';
 
-## 섹션 안내
+<IntroHero />
 
-<CardGrid stagger>
-  <Card title="TIL" icon="calendar" href="til/">
-    하루의 학습을 짧게 기록합니다. 날짜별로 정리해 빠르게 회고할 수 있어요.
-  </Card>
-  <Card title="코딩테스트" icon="code" href="coding-test/">
-    알고리즘 문제 풀이를 정리합니다. 유형별 태그로 분류해요.
-  </Card>
-  <Card title="블로그" icon="open-book" href="blog/">
-    가벼운 생각, 메모, 글을 모읍니다. 실험적인 글도 환영이에요.
-  </Card>
-</CardGrid>
-
-## 최근 글
-
-### TIL
-<RecentPosts count={5} sections={["til"]} />
-
-### 코딩테스트
-<RecentPosts count={5} sections={["coding-test"]} />
-
-### 블로그
-<RecentPosts count={5} sections={["blog"]} />
+<RecentGrid count={6} />
 

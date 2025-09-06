@@ -1,0 +1,25 @@
+---
+const base = import.meta.env.BASE_URL || '/';
+---
+
+<nav class="chips" aria-label="섹션 바로가기">
+  <a class="chip" href={`${base}til/`}>TIL</a>
+  <a class="chip" href={`${base}coding-test/`}>코딩테스트</a>
+  <a class="chip" href={`${base}blog/`}>블로그</a>
+</nav>
+
+<style>
+  .chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .chip {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--sl-color-gray-6);
+    background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent);
+    color: var(--sl-color-text);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
+</style>
+

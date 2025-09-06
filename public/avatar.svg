@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Avatar">
+  <defs>
+    <linearGradient id="ring" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f8bff"/>
+      <stop offset="100%" stop-color="#2a6bff"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <circle cx="64" cy="64" r="56" />
+    </clipPath>
+  </defs>
+  <rect x="0" y="0" width="128" height="128" rx="24" fill="#0b1020"/>
+  <circle cx="64" cy="64" r="58" fill="none" stroke="url(#ring)" stroke-width="4"/>
+  <g clip-path="url(#clip)">
+    <rect x="8" y="8" width="112" height="112" fill="#0b1020"/>
+    <image href="/avatar.jpg" x="8" y="8" width="112" height="112" preserveAspectRatio="xMidYMid slice" />
+  </g>
+</svg>
