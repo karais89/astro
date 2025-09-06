@@ -17,22 +17,17 @@ const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).
 
 const frontmatter = {
   title: '블로그',
-  description: '최근 글과 전체 목록, 아카이브로 이동',
-  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/blog/index.astro',
+  description: '최근 글 목록과 아카이브·태그 탐색',
+  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/index.astro',
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
   <RecentPosts />
 
-  <section aria-labelledby="archive-link">
-    <h2 id="archive-link">아카이브</h2>
-    <p>
-      연도별 글 모아보기: <a href={`${base}blog/archive/`}>아카이브로 이동</a>
-    </p>
-    <p>
-      태그로 보기: <a href={`${base}tags/`}>Tags</a>
-    </p>
-  </section>
+  <nav class="chips-nav" aria-label="탐색">
+    <a class="chip" href={`${base}blog/archive/`}>아카이브</a>
+    <a class="chip" href={`${base}tags/`}>태그</a>
+  </nav>
 
   <section aria-labelledby="all-posts">
     <h2 id="all-posts">전체 글</h2>
@@ -54,3 +49,10 @@ const frontmatter = {
     )}
   </section>
 </StarlightPage>
+
+<style>
+  .chips-nav { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
+  .chip { display: inline-block; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid var(--sl-color-gray-6); background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+  .chip:hover, .chip:focus { border-color: var(--sl-color-gray-5); }
+</style>
+
