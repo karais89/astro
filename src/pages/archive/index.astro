@@ -17,6 +17,22 @@ const years = Array.from(
   )
 ).sort((a, b) => b - a);
 
+// Aggregate tag counts
+const tagCounts = new Map<string, number>();
+for (const e of entries) {
+  const tags = (e.data as any)?.tags as string[] | undefined;
+  if (!Array.isArray(tags)) continue;
+  for (const raw of tags) {
+    const t = String(raw).trim();
+    if (!t) continue;
+    tagCounts.set(t, (tagCounts.get(t) ?? 0) + 1);
+  }
+}
+const popularTags = Array.from(tagCounts.entries())
+  .map(([name, count]) => ({ name, count }))
+  .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name))
+  .slice(0, 24);
+
 const frontmatter = {
   title: '전체 아카이브',
   description: '연도별 전체 글 모아보기 (TIL, 코딩테스트, 블로그)',
@@ -24,14 +40,39 @@ const frontmatter = {
 };
 ---
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  {popularTags.length > 0 && (
+    <section aria-labelledby="popular-tags">
+      <h2 id="popular-tags">인기 태그</h2>
+      <ul class="tags">
+        {popularTags.map(({ name, count }) => (
+          <li>
+            <a class="tag" href={`${base}tags/${encodeURIComponent(name)}/`}>{name}</a>
+            <span class="count">{count}</span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
   {years.length === 0 ? (
     <p>아카이브가 비어 있습니다.</p>
   ) : (
-    <ul>
-      {years.map((year) => (
-        <li><a href={`${base}archive/${year}/`}>{year}</a></li>
-      ))}
-    </ul>
+    <section aria-labelledby="by-year">
+      <h2 id="by-year">연도별</h2>
+      <ul>
+        {years.map((year) => (
+          <li><a href={`${base}archive/${year}/`}>{year}</a></li>
+        ))}
+      </ul>
+    </section>
   )}
+
+  <style>
+    .tags { list-style: none; padding: 0; margin: 0.5rem 0 1.25rem; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+    .tags li { display: flex; align-items: center; gap: 0.5rem; }
+    .tag { text-decoration: none; color: var(--sl-color-text); border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.25rem 0.75rem; font-weight: 600; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); }
+    .tag:hover, .tag:focus { border-color: var(--sl-color-gray-5); }
+    .count { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+  </style>
 </StarlightPage>
 
