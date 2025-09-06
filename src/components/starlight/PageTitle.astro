@@ -22,4 +22,13 @@ const preferBodyH1 = data?.preferBodyH1 === true;
     white-space: nowrap !important;
     border: 0 !important;
   }
+  /* 제목을 시각적으로 숨기는 경우, 바로 다음 패널의 구분선 제거 */
+  :global(.content-panel:has(.sr-only) + .content-panel) {
+    border-top: 0 !important;
+    padding-top: 0 !important;
+  }
+  /* 제목 패널 자체의 하단 패딩도 제거해 이중 간격 방지 */
+  :global(.content-panel:has(.sr-only)) {
+    padding-bottom: 0 !important;
+  }
 </style>
