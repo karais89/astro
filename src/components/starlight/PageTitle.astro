@@ -6,6 +6,20 @@ const route = Astro.locals.starlightRoute;
 const data = route?.entry?.data ?? {};
 const preferBodyH1 = data?.preferBodyH1 === true;
 ---
-<h1 id={PAGE_TITLE_ID} aria-hidden={preferBodyH1} hidden={preferBodyH1}>
+<h1 id={PAGE_TITLE_ID} class={preferBodyH1 ? 'sr-only' : undefined}>
   {route.entry.data.title}
 </h1>
+
+<style>
+  .sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+  }
+</style>
