@@ -1,0 +1,53 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+import RecentPosts from "../../components/RecentPosts.astro";
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL || '/';
+
+// All blog posts (for a simple index list)
+const posts = (await getCollection('docs', ({ id, data }) => id.startsWith('blog/') && !(data as any)?.draft))
+  .filter((p) => (p.data as any)?.date || (p.data as any)?.createdAt)
+  .sort((a, b) => {
+    const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.createdAt) as string).getTime();
+    const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.createdAt) as string).getTime();
+    return bd - ad;
+  });
+const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
+
+const frontmatter = {
+  title: '블로그',
+  description: '최근 글과 전체 목록, 아카이브로 이동',
+  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/blog/index.astro',
+};
+---
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <RecentPosts />
+
+  <section aria-labelledby="archive-link">
+    <h2 id="archive-link">아카이브</h2>
+    <p>
+      연도별 글 모아보기: <a href={`${base}blog/archive/`}>아카이브로 이동</a>
+    </p>
+  </section>
+
+  <section aria-labelledby="all-posts">
+    <h2 id="all-posts">전체 글</h2>
+    {posts.length === 0 ? (
+      <p>게시된 글이 없습니다.</p>
+    ) : (
+      <ul>
+        {posts.map((post) => (
+          <li>
+            <a href={hrefFor(post)}>{post.data.title ?? (post as any).slug ?? post.id}</a>
+            {((post.data as any)?.date || (post.data as any)?.createdAt) && (
+              <small style="margin-left: 0.5rem; opacity: 0.7;">
+                {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
+              </small>
+            )}
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</StarlightPage>

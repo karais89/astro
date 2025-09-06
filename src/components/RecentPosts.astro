@@ -1,0 +1,33 @@
+---
+import { getCollection } from 'astro:content';
+
+const base = import.meta.env.BASE_URL || '/';
+const posts = (await getCollection('docs', ({ id, data }) => id.startsWith('blog/') && !(data as any)?.draft))
+  .filter((p) => (p.data as any)?.date || (p.data as any)?.createdAt)
+  .sort((a, b) => {
+    const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.createdAt) as string).getTime();
+    const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.createdAt) as string).getTime();
+    return bd - ad;
+  })
+  .slice(0, 5);
+const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
+---
+<section aria-labelledby="recent-posts-heading">
+  <h2 id="recent-posts-heading">최근 글</h2>
+  {posts.length === 0 ? (
+    <p>게시된 글이 없습니다.</p>
+  ) : (
+    <ul>
+      {posts.map((post) => (
+        <li>
+          <a href={hrefFor(post)}>{post.data.title ?? (post as any).slug ?? post.id}</a>
+          {((post.data as any)?.date || (post.data as any)?.createdAt) && (
+            <small style="margin-left: 0.5rem; opacity: 0.7;">
+              {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
+            </small>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
