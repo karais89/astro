@@ -8,6 +8,10 @@ export default defineConfig({
 		starlight({
 			title: 'My Docs',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
+			// Enable on-page table of contents in the sidebar
+			tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 4 },
+			// Use Expressive Code for syntax highlighting and code UI (copy button)
+			expressiveCode: {},
 			sidebar: [
 				{
 					label: 'Intro',
