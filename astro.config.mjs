@@ -10,6 +10,7 @@ export default defineConfig({
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/karais89/astro' }],
       components: {
         Header: './src/components/starlight/Header.astro',
+        PageTitle: './src/components/starlight/PageTitle.astro',
       },
       // Show "Last updated" on each page footer
       lastUpdated: true,
@@ -36,4 +37,3 @@ export default defineConfig({
   ],
   base: '/astro/', // Set to repo name if deploying to GitHub Pages
 });
-

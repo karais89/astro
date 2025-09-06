@@ -1,0 +1,11 @@
+---
+// Starlight's PAGE_TITLE_ID is an internal constant ('_top').
+// Avoid deep-importing internal modules; define locally to prevent resolution errors.
+const PAGE_TITLE_ID = '_top';
+const route = Astro.locals.starlightRoute;
+const data = route?.entry?.data ?? {};
+const preferBodyH1 = data?.preferBodyH1 === true;
+---
+<h1 id={PAGE_TITLE_ID} aria-hidden={preferBodyH1} hidden={preferBodyH1}>
+  {route.entry.data.title}
+</h1>

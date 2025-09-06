@@ -11,7 +11,8 @@ export const collections = {
 					// Blog/TIL 메타데이터 보존을 위한 필드 확장
 					date: z.union([z.string(), z.date()]).optional(),
 					createdAt: z.union([z.string(), z.date()]).optional(),
-					tags: z.array(z.string()).optional(),
+						tags: z.array(z.string()).optional(),
+						preferBodyH1: z.boolean().optional(),
 				}),
 		}),
 	}),
