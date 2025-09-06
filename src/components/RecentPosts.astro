@@ -23,9 +23,9 @@ const recent = entries
 ---
 
 {recent.length === 0 ? (
-  <p>아직 게시된 글이 없어요.</p>
+  <p>게시된 글이 없습니다.</p>
 ) : (
-  <ul class="recent-list">
+  <div class="grid">
     {recent.map((e) => {
       const base = import.meta.env.BASE_URL || '/';
       let path = e.id as string;
@@ -36,34 +36,37 @@ const recent = entries
       const desc = e.data?.description as string | undefined;
       const tags = (e.data?.tags as string[] | undefined) ?? [];
       return (
-        <li class="recent-item">
-          <div class="recent-main">
-            <a href={href} class="recent-link">{e.data.title ?? path}</a>
-            {desc && <p class="recent-desc">{desc}</p>}
-            {tags.length > 0 && (
-              <div class="recent-tags">
-                {tags.slice(0, 5).map((t) => (
-                  <span class="tag">{t}</span>
-                ))}
-              </div>
-            )}
+        <article class="card">
+          <div class="meta">
+            {dateStr && <time datetime={dateStr} class="date">{dateStr}</time>}
           </div>
-          {dateStr && <time datetime={dateStr} class="recent-date">{dateStr}</time>}
-        </li>
+          <h3 class="title"><a href={href} class="link">{e.data.title ?? path}</a></h3>
+          {desc && <p class="desc">{desc}</p>}
+          {tags.length > 0 && (
+            <div class="tags">
+              {tags.slice(0, 5).map((t) => (
+                <a class="tag" href={`${base}tags/${encodeURIComponent(t)}/`}>{t}</a>
+              ))}
+            </div>
+          )}
+        </article>
       );
     })}
-  </ul>
+  </div>
 )}
 
 <style>
-  .recent-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.5rem; }
-  .recent-item { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem 1rem; padding: 0.75rem 0.25rem; border-bottom: 1px solid var(--sl-color-gray-6); }
-  .recent-main { min-width: 0; }
-  .recent-link { color: var(--sl-color-text); text-decoration: none; font-weight: 600; display: inline-block; margin-bottom: 0.125rem; }
-  .recent-link:hover, .recent-link:focus { text-decoration: underline; }
-  .recent-desc { margin: 0.125rem 0 0.375rem 0; color: var(--sl-color-gray-2); }
-  .recent-tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
-  .tag { border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 0.8rem; color: var(--sl-color-gray-2); background: var(--sl-color-gray-7); }
-  .recent-date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .grid { display: grid; gap: 1rem; grid-template-columns: 1fr; }
+  @media (min-width: 48rem) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  .card { border: 1px solid var(--sl-color-gray-6); border-radius: 0.9rem; padding: 1rem; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); transition: transform 140ms ease, border-color 140ms ease, background 140ms ease; }
+  .card:hover, .card:focus-within { transform: translateY(-2px); border-color: var(--sl-color-gray-5); background: color-mix(in hsl, var(--sl-color-gray-7) 55%, transparent); }
+  .meta { display: flex; justify-content: flex-end; }
+  .date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+  .title { margin: 0.25rem 0 0.25rem 0; font-size: 1.05rem; line-height: 1.35; }
+  .link { color: var(--sl-color-text); text-decoration: none; font-weight: 700; }
+  .link:hover, .link:focus { text-decoration: underline; }
+  .desc { margin: 0 0 0.5rem 0; color: var(--sl-color-gray-2); }
+  .tags { display: flex; gap: 0.375rem; flex-wrap: wrap; }
+  .tag { border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.125rem 0.5rem; font-size: 0.8rem; color: var(--sl-color-text); background: var(--sl-color-gray-7); text-decoration: none; }
 </style>
 

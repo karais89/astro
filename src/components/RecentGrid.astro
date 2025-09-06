@@ -69,7 +69,7 @@ function findSection(id: string): Section | undefined {
   </div>
 
   {recent.length === 0 ? (
-    <p>아직 게시된 글이 없어요.</p>
+    <p>게시된 글이 없습니다.</p>
   ) : (
     <div class="grid">
       {recent.map((e) => {
@@ -130,4 +130,3 @@ function findSection(id: string): Section | undefined {
     .date { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
   </style>
 </section>
-
