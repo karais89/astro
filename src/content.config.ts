@@ -8,12 +8,14 @@ export const collections = {
 		schema: docsSchema({
 			extend: ({}) =>
 				z.object({
-					// Blog/TIL 메타데이터 보존을 위한 필드 확장
+					// Blog/TIL metadata 확장
 					date: z.union([z.string(), z.date()]).optional(),
 					updatedAt: z.union([z.string(), z.date()]).optional(),
-						tags: z.array(z.string()).optional(),
-						preferBodyH1: z.boolean().optional(),
+					draft: z.boolean().optional(),
+					tags: z.array(z.string()).optional(),
+					preferBodyH1: z.boolean().optional(),
 				}),
 		}),
 	}),
 };
+
