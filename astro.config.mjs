@@ -66,11 +66,11 @@ function buildSection(sectionDir, label, opts = { recent: 5, icon: '' }) {
     collapsed: true,
     badge: { text: String(total) },
     items: [
-      { label: `최근 ${opts.recent}개`, items: recent.map((it) => ({ slug: it.slug })) },
+      { label: `🔥 최근 ${opts.recent}개`, items: recent.map((it) => ({ slug: it.slug })) },
     ],
   };
   if (yearGroups.length > 0) {
-    section.items.push({ label: '더 보기', collapsed: true, items: yearGroups });
+    section.items.push({ label: '📚 더 보기', collapsed: true, items: yearGroups });
   }
   return section;
 }
