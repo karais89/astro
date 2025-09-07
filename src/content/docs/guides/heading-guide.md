@@ -22,7 +22,6 @@ draft: false
 ---
 title: "BOJ 11047 동전 0"
 date: 2025-09-05
-createdAt: 2025-09-05
 tags: ["greedy", "boj"]
 draft: false
 preferBodyH1: true

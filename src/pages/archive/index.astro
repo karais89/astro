@@ -9,12 +9,10 @@ const entries = (await getCollection('docs', ({ id, data }) => {
   const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
   return inSections && (data as any)?.draft !== true;
 }))
-  .filter((e) => (e.data as any)?.date || (e.data as any)?.createdAt);
+  .filter((e) => (e.data as any)?.date);
 
 const years = Array.from(
-  new Set(
-    entries.map((e) => new Date(((e.data as any)?.date ?? (e.data as any)?.createdAt) as string).getFullYear())
-  )
+  new Set(entries.map((e) => new Date(((e.data as any)?.date) as string).getFullYear()))
 ).sort((a, b) => b - a);
 
 // Aggregate tag counts
@@ -75,4 +73,3 @@ const frontmatter = {
     .count { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
   </style>
 </StarlightPage>
-

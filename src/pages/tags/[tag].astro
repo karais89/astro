@@ -30,7 +30,7 @@ const entries = await getCollection('docs', ({ id, data }) => {
   return Array.isArray(tags) && tags.some((t) => String(t).trim() === target);
 });
 
-const getDate = (e: any) => new Date((e.data?.date ?? e.data?.createdAt ?? 0) as string | number);
+const getDate = (e: any) => new Date((e.data?.date ?? e.data?.updatedAt ?? 0) as string | number);
 const posts = entries
   .filter((e) => e.id !== 'index' && !e.id.endsWith('/index'))
   .sort((a, b) => Number(getDate(b)) - Number(getDate(a)));
@@ -53,9 +53,9 @@ const frontmatter = {
       {posts.map((post) => (
         <li>
           <a href={hrefFor(post)}>{(post as any).data?.title ?? (post as any).slug ?? post.id}</a>
-          {((post.data as any)?.date || (post.data as any)?.createdAt) && (
+          {((post.data as any)?.date || (post.data as any)?.updatedAt) && (
             <small style="margin-left: 0.5rem; opacity: 0.7;">
-              {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
+              {new Date(((post.data as any)?.date ?? (post.data as any)?.updatedAt) as string).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
             </small>
           )}
         </li>
@@ -63,4 +63,3 @@ const frontmatter = {
     </ul>
   )}
 </StarlightPage>
-

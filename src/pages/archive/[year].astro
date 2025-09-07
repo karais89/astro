@@ -7,11 +7,9 @@ export async function getStaticPaths() {
     const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
     return inSections && (data as any)?.draft !== true;
   }))
-    .filter((e) => (e.data as any)?.date || (e.data as any)?.createdAt);
+    .filter((e) => (e.data as any)?.date);
   const years = Array.from(
-    new Set(
-      entries.map((e) => new Date(((e.data as any)?.date ?? (e.data as any)?.createdAt) as string).getFullYear())
-    )
+    new Set(entries.map((e) => new Date(((e.data as any)?.date) as string).getFullYear()))
   ).sort((a, b) => b - a);
   return years.map((y) => ({ params: { year: String(y) } }));
 }
@@ -25,11 +23,11 @@ const entries = (await getCollection('docs', ({ id, data }) => {
   const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
   return inSections && (data as any)?.draft !== true;
 }))
-  .filter((e) => (e.data as any)?.date || (e.data as any)?.createdAt)
-  .filter((e) => new Date(((e.data as any)?.date ?? (e.data as any)?.createdAt) as string).getFullYear() === targetYear)
+  .filter((e) => (e.data as any)?.date)
+  .filter((e) => new Date(((e.data as any)?.date) as string).getFullYear() === targetYear)
   .sort((a, b) => {
-    const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.createdAt) as string).getTime();
-    const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.createdAt) as string).getTime();
+    const ad = new Date(((a.data as any)?.date) as string).getTime();
+    const bd = new Date(((b.data as any)?.date) as string).getTime();
     return bd - ad;
   });
 
@@ -50,9 +48,9 @@ const frontmatter = {
       {entries.map((post) => (
         <li>
           <a href={hrefFor(post)}>{(post as any).data?.title ?? (post as any).slug ?? post.id}</a>
-          {((post.data as any)?.date || (post.data as any)?.createdAt) && (
+          {((post.data as any)?.date || (post.data as any)?.updatedAt) && (
             <small style="margin-left: 0.5rem; opacity: 0.7;">
-              {new Date(((post.data as any)?.date ?? (post.data as any)?.createdAt) as string).toLocaleDateString()}
+              {new Date(((post.data as any)?.date ?? (post.data as any)?.updatedAt) as string).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
             </small>
           )}
         </li>
@@ -60,4 +58,3 @@ const frontmatter = {
     </ul>
   )}
 </StarlightPage>
-

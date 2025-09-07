@@ -2,7 +2,6 @@
 title: "x만큼 간격이 있는 n개의 숫자"
 description: x만큼 간격이 있는 n개의 숫자 문제 풀이.
 date: 2025-09-07
-createdAt: 2025-09-07
 tags: ["programmers"]
 draft: false
 preferBodyH1: true
@@ -74,4 +73,3 @@ public class Solution {
 - 핵심 아이디어: 그냥 단순한 반복문 문제
 - 헷갈린 부분: 없음, 단순 계산 문제. 조건 자체가 자연수 이므로 0 체크는 불필요
 - 복습 필요: [ ]
-

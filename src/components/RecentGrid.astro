@@ -41,7 +41,7 @@ const entries = await getCollection('docs', ({ id, data }) => {
   return inSelected && data?.draft !== true;
 });
 
-const getDate = (e: any) => new Date((e.data?.date ?? e.data?.createdAt ?? 0) as string | number);
+const getDate = (e: any) => new Date((e.data?.date ?? e.data?.updatedAt ?? 0) as string | number);
 const recent = entries
   .filter((e) => !e.id.endsWith('/index'))
   .sort((a, b) => Number(getDate(b)) - Number(getDate(a)))
@@ -78,7 +78,9 @@ function findSection(id: string): Section | undefined {
         const path = toPath(e.id);
         const href = `${base}${path}/`;
         const d = getDate(e);
-        const dateStr = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+        const dateIso = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+        let dateKST = dateIso;
+        try { dateKST = d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }); } catch {}
         const desc = e.data?.description as string | undefined;
         const tags = (e.data?.tags as string[] | undefined) ?? [];
         const sec = findSection(e.id);
@@ -88,7 +90,7 @@ function findSection(id: string): Section | undefined {
           <a href={href} class={`card ${secClass}`}>
             <div class="meta">
               <span class={`badge ${secClass}`}>{secLabel}</span>
-              {dateStr && <time datetime={dateStr} class="date">{dateStr}</time>}
+              {dateIso && <time datetime={dateIso} class="date">{dateKST}</time>}
             </div>
             <h3 class="title">{e.data.title ?? path}</h3>
             {desc && <p class="desc">{desc}</p>}

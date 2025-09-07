@@ -4,10 +4,10 @@ import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = (await getCollection('docs', ({ id, data }) => id.startsWith('blog/') && !(data as any)?.draft))
-    .filter((p) => (p.data as any)?.date || (p.data as any)?.createdAt)
+    .filter((p) => (p.data as any)?.date || (p.data as any)?.updatedAt)
     .sort((a, b) => {
-      const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.createdAt) as string).getTime();
-      const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.createdAt) as string).getTime();
+      const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.updatedAt) as string).getTime();
+      const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.updatedAt) as string).getTime();
       return bd - ad;
     });
   const POSTS_PER_PAGE = 12;
@@ -21,10 +21,10 @@ const currentPage = Math.max(1, Number(page));
 const POSTS_PER_PAGE = 12;
 
 const all = (await getCollection('docs', ({ id, data }) => id.startsWith('blog/') && !(data as any)?.draft))
-  .filter((p) => (p.data as any)?.date || (p.data as any)?.createdAt)
+  .filter((p) => (p.data as any)?.date || (p.data as any)?.updatedAt)
   .sort((a, b) => {
-    const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.createdAt) as string).getTime();
-    const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.createdAt) as string).getTime();
+    const ad = new Date(((a.data as any)?.date ?? (a.data as any)?.updatedAt) as string).getTime();
+    const bd = new Date(((b.data as any)?.date ?? (b.data as any)?.updatedAt) as string).getTime();
     return bd - ad;
   });
 
@@ -53,14 +53,16 @@ const frontmatter = {
           const data: any = post.data as any;
           const href = `${base}${(post as any).slug ?? (post as any).id}/`;
           const title = data?.title ?? (post as any).slug ?? post.id;
-          const d = new Date(((data?.date ?? data?.createdAt) as string) ?? '');
-          const dateStr = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+          const d = new Date(((data?.date ?? data?.updatedAt) as string) ?? '');
+          const dateIso = isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+          let dateKST = dateIso;
+          try { dateKST = d.toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' }); } catch {}
           const desc = data?.description as string | undefined;
           const tags = (data?.tags as string[] | undefined) ?? [];
           return (
             <article class="card">
               <div class="meta">
-                {dateStr && <time datetime={dateStr} class="date">{dateStr}</time>}
+                {dateIso && <time datetime={dateIso} class="date">{dateKST}</time>}
               </div>
               <h3 class="title"><a class="link" href={href}>{title}</a></h3>
               {desc && <p class="desc">{desc}</p>}
@@ -112,4 +114,3 @@ const frontmatter = {
   .pager-link.current { background: color-mix(in hsl, var(--sl-color-gray-7) 55%, transparent); font-weight: 700; }
   .pager-link.disabled { opacity: 0.5; pointer-events: none; }
 </style>
-
