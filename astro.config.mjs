@@ -1,6 +1,8 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import fs from 'node:fs';
+import path from 'node:path';
 
 // https://astro.build/config
 export default defineConfig({
@@ -26,14 +28,44 @@ export default defineConfig({
       sidebar: [
         {
           label: 'TIL',
-          autogenerate: { directory: 'til' },
+          items: getSortedDocSlugs('til').map((slug) => ({ slug })),
         },
         {
           label: '코딩테스트',
-          autogenerate: { directory: 'coding-test' },
+          items: getSortedDocSlugs('coding-test').map((slug) => ({ slug })),
         },
       ],
     }),
   ],
   base: '/astro/', // Set to repo name if deploying to GitHub Pages
 });
+
+// Build sidebar items by reading docs directory and sorting by slug (desc).
+// Assumes files are named with a leading `YYYY-MM-DD-...` for correct lexicographic date ordering.
+function getSortedDocSlugs(sectionDir) {
+  const root = path.resolve(process.cwd(), 'src', 'content', 'docs', sectionDir);
+  const slugs = [];
+  if (!fs.existsSync(root)) return slugs;
+  const walk = (dir, rel = '') => {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
+    for (const e of entries) {
+      if (e.name.startsWith('.')) continue;
+      const full = path.join(dir, e.name);
+      const nextRel = rel ? path.join(rel, e.name) : e.name;
+      if (e.isDirectory()) {
+        walk(full, nextRel);
+      } else if (e.isFile()) {
+        const ext = path.extname(e.name).toLowerCase();
+        if (ext !== '.md' && ext !== '.mdx') continue;
+        const nameNoExt = nextRel.slice(0, -ext.length);
+        if (nameNoExt.toLowerCase() === 'index') continue;
+        const slug = `${sectionDir}/${nameNoExt}`.replace(/\\/g, '/');
+        slugs.push(slug);
+      }
+    }
+  };
+  walk(root);
+  // Sort desc (latest first) relying on YYYY-MM-DD- prefix
+  slugs.sort((a, b) => b.localeCompare(a));
+  return slugs;
+}
