@@ -1,5 +1,5 @@
 ---
-title: "x만큼 간격이 있는 n개의 숫자"
+title: "x만큼 간격이 있는 n개의 숫자 (Lv.1)"
 description: x만큼 간격이 있는 n개의 숫자 문제 풀이.
 date: 2025-09-07
 tags: ["programmers"]
@@ -7,7 +7,7 @@ draft: false
 preferBodyH1: true
 ---
 
-# x만큼 간격이 있는 n개의 숫자
+# x만큼 간격이 있는 n개의 숫자 (Lv.1)
 
 ## 문제 요약
 
