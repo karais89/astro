@@ -78,7 +78,7 @@ function buildSection(sectionDir, label, opts = { recent: 5, icon: '' }) {
 export default defineConfig({
   integrations: [
     starlight({
-      title: 'My Docs',
+      title: 'Dev Archive',
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/karais89/astro' }],
       components: {
         Header: './src/components/starlight/Header.astro',
