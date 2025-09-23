@@ -1,0 +1,53 @@
+
+
+/* Related widget (minimal, theme-friendly) */
+.related.related--widget {
+  margin-top: 1 rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid var(--sl-color-gray-5);
+}
+
+/* Heading */
+.related.related--widget .sl-heading-wrapper h2 {
+  font-size: 1.05rem;
+  margin: 0 0 1rem;
+  color: var(--sl-color-text);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.related.related--widget .sl-heading-wrapper .sl-anchor-link { display: none !important; }
+.related.related--widget .sl-heading-wrapper h2::before {
+  content: '🔗';
+  opacity: .9;
+}
+
+/* List */
+.related.related--widget ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.9rem 1.2rem;
+  list-style: none;
+  padding-left: 0;
+  margin: 0.2rem 0 0;
+}
+.related.related--widget li { background: transparent; border: 0; }
+
+/* Chip */
+.related.related--widget ul a {
+  display: inline-block;
+  padding: 0.28rem 0.56rem;
+  text-decoration: none;
+  color: var(--sl-color-text);
+  background: transparent;
+  border: 1.5px solid color-mix(in oklab, var(--sl-color-text) 65%, transparent);
+  border-radius: 9999px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: border-color .15s ease, transform .12s ease;
+}
+.related.related--widget ul a:hover {
+  background: transparent;
+  border-color: var(--sl-color-text);
+  transform: translateY(-1px);
+}

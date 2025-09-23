@@ -1,6 +1,7 @@
-// @ts-check
+// Type checking disabled for this config to allow flexible JS helpers
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import remarkRelated from './src/remark/remark-related.js';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -76,6 +77,9 @@ function buildSection(sectionDir, label, opts = { recent: 5, icon: '' }) {
 }
 
 export default defineConfig({
+  markdown: {
+    remarkPlugins: [[remarkRelated, { base: '/astro/' }]],
+  },
   integrations: [
     starlight({
       title: 'Dev Archive',
@@ -84,6 +88,7 @@ export default defineConfig({
         Header: './src/components/starlight/Header.astro',
         PageTitle: './src/components/starlight/PageTitle.astro',
       },
+      customCss: ['./src/styles/related.css'],
       // Show "Last updated" on each page footer
       lastUpdated: true,
       // Add "Edit this page" links using your repo
