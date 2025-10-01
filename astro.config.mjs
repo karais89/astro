@@ -104,5 +104,6 @@ export default defineConfig({
       ],
     }),
   ],
+  site: 'https://karais89.github.io', // 실제 배포 주소로 변경
   base: '/astro/', // Set to repo name if deploying to GitHub Pages
 });
