@@ -2,7 +2,7 @@
 
 /* Related widget (minimal, theme-friendly) */
 .related.related--widget {
-  margin-top: 1 rem;
+  margin-top: 1rem;
   padding-top: 1.25rem;
   border-top: 2px solid var(--sl-color-gray-5);
 }
@@ -24,12 +24,13 @@
 
 /* List */
 .related.related--widget ul {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.9rem 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 1rem;
   list-style: none;
   padding-left: 0;
   margin: 0.2rem 0 0;
+  justify-content: flex-start;
 }
 .related.related--widget li { background: transparent; border: 0; }
 

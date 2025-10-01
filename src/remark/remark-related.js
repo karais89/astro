@@ -87,15 +87,38 @@ export default function remarkRelated(opts = {}) {
     }
     const fm = /** @type {any} */ (fmContainer.frontmatter || {});
     const raw = Array.isArray(fm.related) ? fm.related.filter(Boolean) : [];
-    if (raw.length === 0) return;
+    const items = raw
+      .map((entry) => {
+        if (entry && typeof entry === 'object') {
+          if (typeof entry.href === 'string') {
+            return {
+              href: entry.href,
+              label: typeof entry.label === 'string' ? entry.label : undefined,
+            };
+          }
+          if (typeof entry.slug === 'string') {
+            const slugPath = `/${entry.slug.replace(/^\/+/, '')}`;
+            return {
+              href: slugPath,
+              label: typeof entry.label === 'string' ? entry.label : undefined,
+            };
+          }
+        } else if (typeof entry === 'string') {
+          console.warn('[remark-related] 문자열 포맷은 더 이상 지원되지 않습니다. { href, label } 형태를 사용하세요.');
+        }
+        return null;
+      })
+      .filter((it) => it && typeof it.href === 'string');
 
-    const links = raw.slice(0, maxItems).map((href) => {
+    if (items.length === 0) return;
+
+    const links = items.slice(0, maxItems).map(({ href, label }) => {
       const original = String(href);
       const normalized = normalizeInternalPath(original);
 
       const isInternal = normalized.startsWith('/');
       const title = isInternal ? getDocTitle(normalized) : null;
-      const display = title || original;
+      const display = label || title || original;
 
       let url = original;
       if (isInternal) {
