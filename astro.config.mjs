@@ -76,10 +76,24 @@ function buildSection(sectionDir, label, opts = { recent: 5, icon: '' }) {
   return section;
 }
 
+function remarkRelatedIntegration(base = '/') {
+  return {
+    name: 'remark-related',
+    hooks: {
+      'astro:config:setup'({ config, updateConfig }) {
+        const existing = config.markdown?.remarkPlugins ?? [];
+        updateConfig({
+          markdown: {
+            ...(config.markdown ?? {}),
+            remarkPlugins: [...existing, [remarkRelated, { base }]],
+          },
+        });
+      },
+    },
+  };
+}
+
 export default defineConfig({
-  markdown: {
-    remarkPlugins: [[remarkRelated, { base: '/astro/' }]],
-  },
   integrations: [
     starlight({
       title: 'Dev Archive',
@@ -103,6 +117,7 @@ export default defineConfig({
         buildSection('coding-test', '코딩테스트', { recent: 5, icon: '🧠' }),
       ],
     }),
+    remarkRelatedIntegration('/astro/'),
   ],
   site: 'https://karais89.github.io', // 실제 배포 주소로 변경
   base: '/astro/', // Set to repo name if deploying to GitHub Pages

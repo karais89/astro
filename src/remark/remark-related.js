@@ -1,4 +1,6 @@
 // Rebuilt: simple HTML injector for related links
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Escape HTML special characters for safe text rendering.
@@ -26,25 +28,51 @@ function normalizeInternalPath(url) {
   return u;
 }
 
-let titleMapPromise;
-async function getDocsTitleMap() {
-  if (!titleMapPromise) {
-    titleMapPromise = (async () => {
-      // Dynamic import to avoid resolving at config-eval time
-      const { getCollection } = await import('astro:content');
-      const entries = await getCollection('docs');
-      const map = new Map();
-      for (const entry of entries) {
-        const slug = String(entry.slug || ''); // e.g. blog/2025-09-23-dr-dc
-        if (!slug) continue;
-        const title = entry.data && (entry.data.title || (entry.data.sidebar && entry.data.sidebar.label)) || slug;
-        const key = normalizeInternalPath(`/${slug}`);
-        map.set(key, String(title));
-      }
-      return map;
-    })();
+const titleCache = new Map();
+const docsRoot = path.resolve(process.cwd(), 'src', 'content', 'docs');
+
+function parseYamlString(raw) {
+  let value = String(raw || '').trim();
+  if (!value) return '';
+  if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    value = value.slice(1, -1);
   }
-  return titleMapPromise;
+  return value;
+}
+
+function readFrontmatterTitle(filePath) {
+  try {
+    const contents = fs.readFileSync(filePath, 'utf8');
+    const match = contents.match(/^---\s*\n([\s\S]*?)\n---/);
+    if (!match) return null;
+    const frontmatter = match[1];
+    const titleMatch = frontmatter.match(/^title:\s*(.+)$/m);
+    if (!titleMatch) return null;
+    return parseYamlString(titleMatch[1]);
+  } catch {
+    return null;
+  }
+}
+
+function getDocTitle(normalizedPath) {
+  if (!normalizedPath.startsWith('/')) return null;
+  if (titleCache.has(normalizedPath)) return titleCache.get(normalizedPath);
+  const trimmed = normalizedPath.replace(/^\/+|\/+$/g, '');
+  if (!trimmed) {
+    titleCache.set(normalizedPath, null);
+    return null;
+  }
+  const basePath = path.join(docsRoot, trimmed);
+  const candidates = [`${basePath}.md`, `${basePath}.mdx`, path.join(basePath, 'index.md'), path.join(basePath, 'index.mdx')];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      const title = readFrontmatterTitle(candidate) || trimmed;
+      titleCache.set(normalizedPath, title);
+      return title;
+    }
+  }
+  titleCache.set(normalizedPath, null);
+  return null;
 }
 
 export default function remarkRelated(opts = {}) {
@@ -53,18 +81,21 @@ export default function remarkRelated(opts = {}) {
 
   return async (tree, file) => {
     const data = /** @type {any} */ (file.data || {});
-    const fm = /** @type {any} */ (data.astro || {}).frontmatter || {};
+    const fmContainer = /** @type {any} */ (data.astro || {});
+    if (!fmContainer.frontmatter && data.matter) {
+      fmContainer.frontmatter = data.matter.data;
+    }
+    const fm = /** @type {any} */ (fmContainer.frontmatter || {});
     const raw = Array.isArray(fm.related) ? fm.related.filter(Boolean) : [];
     if (raw.length === 0) return;
-
-    const titleMap = await getDocsTitleMap();
 
     const links = raw.slice(0, maxItems).map((href) => {
       const original = String(href);
       const normalized = normalizeInternalPath(original);
 
       const isInternal = normalized.startsWith('/');
-      const display = isInternal ? (titleMap.get(normalized) || original) : original;
+      const title = isInternal ? getDocTitle(normalized) : null;
+      const display = title || original;
 
       let url = original;
       if (isInternal) {
@@ -84,5 +115,3 @@ export default function remarkRelated(opts = {}) {
     /** @type {any[]} */ (tree.children).push({ type: 'html', value: html });
   };
 }
-
-
