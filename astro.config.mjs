@@ -101,6 +101,7 @@ export default defineConfig({
       components: {
         Header: './src/components/starlight/Header.astro',
         PageTitle: './src/components/starlight/PageTitle.astro',
+        TwoColumnContent: './src/components/starlight/TwoColumnContent.astro',
       },
       customCss: ['./src/styles/related.css'],
       // Show "Last updated" on each page footer

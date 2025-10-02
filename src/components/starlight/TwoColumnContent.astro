@@ -1,0 +1,211 @@
+---
+import config from 'virtual:starlight/user-config';
+
+const DEFAULT_TOC = { minHeadingLevel: 2, maxHeadingLevel: 3 };
+const PAGE_TITLE_ID = '_top';
+
+const { starlightRoute, t } = Astro.locals;
+const isSplash = starlightRoute.entry?.data?.template === 'splash';
+
+function normalizeTocConfig(rawConfig) {
+	if (rawConfig === false) return undefined;
+	if (rawConfig === true || rawConfig === undefined) return { ...DEFAULT_TOC };
+	if (rawConfig && typeof rawConfig === 'object') {
+		const { minHeadingLevel, maxHeadingLevel } = rawConfig;
+		return {
+			minHeadingLevel: minHeadingLevel ?? DEFAULT_TOC.minHeadingLevel,
+			maxHeadingLevel: maxHeadingLevel ?? DEFAULT_TOC.maxHeadingLevel,
+		};
+	}
+	return undefined;
+}
+
+function buildToc(headings, tocConfig) {
+	const filtered = (headings ?? []).filter(
+		({ depth }) => depth >= tocConfig.minHeadingLevel && depth <= tocConfig.maxHeadingLevel
+	);
+	const root = { depth: 2, slug: PAGE_TITLE_ID, text: t('tableOfContents.overview'), children: [] };
+	const items = [root];
+	for (const heading of filtered) {
+		injectTocItem(items, { ...heading, children: [] });
+	}
+	return items;
+}
+
+function injectTocItem(items, item) {
+	const last = items.at(-1);
+	if (!last || last.depth >= item.depth) {
+		items.push(item);
+		return;
+	}
+	injectTocItem(last.children, item);
+}
+
+if (isSplash && !starlightRoute.toc) {
+	const frontmatterToc = starlightRoute.entry?.data?.tableOfContents;
+	const resolvedConfig = normalizeTocConfig(
+		frontmatterToc !== undefined ? frontmatterToc : config.tableOfContents
+	);
+	if (resolvedConfig) {
+		const items = buildToc(starlightRoute.headings ?? [], resolvedConfig);
+		if (items.length > 1) {
+			starlightRoute.toc = { ...resolvedConfig, items };
+		}
+	}
+}
+
+const hasToc = Boolean(starlightRoute.toc);
+---
+
+{
+	isSplash ? (
+		<>
+			<div class={['splash-content-shell', hasToc && 'splash-content-shell--with-toc'].filter(Boolean).join(' ')}>
+				{hasToc && (
+					<aside class="splash-floating-toc print:hidden" aria-label="On this page">
+						<div class="splash-floating-toc__inner">
+							<slot name="right-sidebar" />
+						</div>
+					</aside>
+				)}
+				<div class="splash-main-pane">
+					<slot />
+				</div>
+			</div>
+			{hasToc && (
+				<script>
+					document.documentElement.setAttribute('data-has-toc', '');
+				</script>
+			)}
+		</>
+	) : (
+		<div class="lg:sl-flex">
+			{
+				starlightRoute.toc && (
+					<aside class="right-sidebar-container print:hidden">
+						<div class="right-sidebar">
+							<slot name="right-sidebar" />
+						</div>
+					</aside>
+				)
+			}
+			<div class="main-pane"><slot /></div>
+		</div>
+	)
+}
+
+<style>
+	@layer starlight.core {
+		.splash-content-shell {
+			display: block;
+			margin-inline: auto;
+			max-width: var(--sl-content-width);
+		}
+
+		.splash-main-pane {
+			position: relative;
+		}
+
+		.splash-floating-toc {
+			margin-top: 2.5rem;
+			width: 100%;
+		}
+
+		.splash-floating-toc__inner {
+			position: relative;
+		}
+
+		@media (min-width: 72rem) {
+			.splash-content-shell {
+				display: flex;
+				gap: clamp(2rem, 5vw, 4rem);
+				justify-content: center;
+				max-width: none;
+			}
+
+			.splash-main-pane {
+				flex: 0 1 var(--sl-content-width);
+				min-width: 0;
+				order: 1;
+			}
+
+			.splash-content-shell--with-toc {
+				padding-inline-end: clamp(0rem, 8vw, 6rem);
+			}
+
+			.splash-floating-toc {
+				flex: 0 0 clamp(14rem, 18vw, 20rem);
+				margin-top: 0;
+				order: 2;
+			}
+
+			.splash-floating-toc__inner {
+				position: sticky;
+				top: calc(var(--sl-nav-height) + 1.5rem);
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel) {
+				background: var(--sl-color-bg-sidebar);
+				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 85%, transparent 15%);
+				border: 1px solid var(--sl-color-hairline);
+				border-radius: 1rem;
+				box-shadow: var(--sl-shadow-lg);
+				padding: 1.5rem;
+				width: 100%;
+				color: var(--sl-color-text);
+			}
+
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel) {
+				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 70%, var(--sl-color-bg) 30%);
+				border-color: var(--sl-color-hairline-light);
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel h2) {
+				margin-top: 0;
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel .sl-container) {
+				width: 100%;
+			}
+		}
+
+		/* Original layout styles for doc template */
+		.main-pane {
+			isolation: isolate;
+		}
+
+		@media (min-width: 72rem) {
+			.right-sidebar-container {
+				order: 2;
+				position: relative;
+				width: calc(
+					var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2
+				);
+			}
+
+			.right-sidebar {
+				position: fixed;
+				top: 0;
+				border-inline-start: 1px solid var(--sl-color-hairline);
+				padding-top: var(--sl-nav-height);
+				width: 100%;
+				height: 100vh;
+				overflow-y: auto;
+				scrollbar-width: none;
+			}
+
+			.main-pane {
+				width: 100%;
+			}
+
+			:global([data-has-sidebar][data-has-toc]) .main-pane {
+				--sl-content-margin-inline: auto 0;
+
+				order: 1;
+				width: calc(
+					var(--sl-content-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2
+				);
+			}
+		}
+	}
+</style>
