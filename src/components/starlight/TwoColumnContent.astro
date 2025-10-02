@@ -99,7 +99,8 @@ const hasToc = Boolean(starlightRoute.toc);
 		.splash-content-shell {
 			display: block;
 			margin-inline: auto;
-			max-width: var(--sl-content-width);
+			padding-inline: clamp(1.5rem, 5vw, 6rem);
+			max-width: min(100%, 80rem);
 		}
 
 		.splash-main-pane {
@@ -115,33 +116,22 @@ const hasToc = Boolean(starlightRoute.toc);
 			position: relative;
 		}
 
-		@media (min-width: 72rem) {
-			.splash-content-shell {
-				display: flex;
-				gap: clamp(2rem, 5vw, 4rem);
-				justify-content: center;
-				max-width: none;
-			}
-
+		@media (min-width: 100rem) {
 			.splash-main-pane {
-				flex: 0 1 var(--sl-content-width);
-				min-width: 0;
-				order: 1;
-			}
-
-			.splash-content-shell--with-toc {
-				padding-inline-end: clamp(0rem, 8vw, 6rem);
+				max-width: var(--sl-content-width);
+				margin-inline: auto;
 			}
 
 			.splash-floating-toc {
-				flex: 0 0 clamp(14rem, 18vw, 20rem);
+				position: fixed;
+				top: calc(var(--sl-nav-height) + 2rem);
+				right: clamp(1rem, 2vw, 6rem);
+				width: clamp(12rem, 16vw, 18rem);
 				margin-top: 0;
-				order: 2;
 			}
 
 			.splash-floating-toc__inner {
-				position: sticky;
-				top: calc(var(--sl-nav-height) + 1.5rem);
+				position: static;
 			}
 
 			.splash-floating-toc__inner :global(.right-sidebar-panel) {
