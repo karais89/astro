@@ -145,27 +145,114 @@ const hasToc = Boolean(starlightRoute.toc);
 			}
 
 			.splash-floating-toc__inner :global(.right-sidebar-panel) {
-				background: var(--sl-color-bg-sidebar);
-				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 85%, transparent 15%);
-				border: 1px solid var(--sl-color-hairline);
-				border-radius: 1rem;
-				box-shadow: var(--sl-shadow-lg);
-				padding: 1.5rem;
+				position: relative;
 				width: 100%;
+				padding: 1.5rem 1.6rem 1.6rem calc(1.6rem + 6px);
+				border-radius: 1.05rem;
+				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 90%, transparent 10%);
+				border: 1px solid color-mix(in srgb, var(--sl-color-hairline) 68%, transparent 32%);
+				box-shadow: 0 24px 46px rgba(15, 23, 42, 0.12);
+				backdrop-filter: blur(18px);
 				color: var(--sl-color-text);
 			}
 
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel) {
-				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 70%, var(--sl-color-bg) 30%);
-				border-color: var(--sl-color-hairline-light);
+			.splash-floating-toc__inner :global(.right-sidebar-panel::after) {
+				content: '';
+				position: absolute;
+				top: 0;
+				left: 0;
+				bottom: 0;
+				width: 6px;
+				border-radius: 1.05rem 0 0 1.05rem;
+				background: linear-gradient(
+					180deg,
+					rgb(248, 163, 139) 0%,
+					rgb(232, 172, 205) 33%,
+					rgb(162, 182, 243) 66%,
+					rgb(127, 218, 235) 100%
+				);
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
+				display: grid;
+				gap: 1rem;
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
+				display: grid;
+				gap: 0.9rem;
 			}
 
 			.splash-floating-toc__inner :global(.right-sidebar-panel h2) {
-				margin-top: 0;
+				margin: 0;
+				font-size: var(--sl-text-xs);
+				font-weight: 600;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+				color: color-mix(in srgb, var(--sl-color-text) 60%, transparent 40%);
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel ul) {
+				margin: 0;
+				padding: 0;
+				display: grid;
+				gap: 0.4rem;
 			}
 
 			.splash-floating-toc__inner :global(.right-sidebar-panel .sl-container) {
 				width: 100%;
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel li) {
+				list-style: none;
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel a) {
+				display: block;
+				padding: 0.5rem 0.85rem;
+				border-radius: 0.5rem;
+				font-size: var(--sl-text-sm);
+				color: color-mix(in srgb, var(--sl-color-text) 78%, transparent 22%);
+				background: transparent;
+				border: 1px solid transparent;
+				transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
+			.splash-floating-toc__inner :global(.right-sidebar-panel a:focus-visible) {
+				color: var(--sl-color-text);
+				transform: translateX(2px);
+				border-color: color-mix(in srgb, var(--sl-color-accent) 35%, transparent 65%);
+				background: color-mix(in srgb, transparent 90%, var(--sl-color-accent) 10%);
+			}
+
+			.splash-floating-toc__inner :global(.right-sidebar-panel a[aria-current='true']) {
+				color: var(--sl-color-text);
+				background: color-mix(in srgb, transparent 82%, var(--sl-color-accent) 18%);
+				border-color: color-mix(in srgb, var(--sl-color-accent) 55%, transparent 45%);
+				font-weight: 600;
+			}
+
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel) {
+				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 78%, rgba(15, 23, 42, 0.18) 22%);
+				border-color: color-mix(in srgb, var(--sl-color-hairline-light) 80%, transparent 20%);
+				box-shadow: 0 28px 60px rgba(2, 6, 23, 0.6);
+			}
+
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a) {
+				color: var(--sl-color-gray-3);
+				background: color-mix(in srgb, transparent 96%, rgba(148, 163, 184, 0.22) 4%);
+			}
+
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a:focus-visible) {
+				background: color-mix(in srgb, transparent 86%, rgba(96, 165, 250, 0.45) 14%);
+				border-color: color-mix(in srgb, rgba(96, 165, 250, 0.6) 60%, transparent 40%);
+			}
+
+			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a[aria-current='true']) {
+				background: color-mix(in srgb, transparent 78%, rgba(59, 130, 246, 0.5) 22%);
+				border-color: rgba(59, 130, 246, 0.6);
 			}
 		}
 
