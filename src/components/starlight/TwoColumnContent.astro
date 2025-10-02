@@ -72,11 +72,6 @@ const hasToc = Boolean(starlightRoute.toc);
 					<slot />
 				</div>
 			</div>
-			{hasToc && (
-				<script>
-					document.documentElement.setAttribute('data-has-toc', '');
-				</script>
-			)}
 		</>
 	) : (
 		<div class="lg:sl-flex">
@@ -161,11 +156,6 @@ const hasToc = Boolean(starlightRoute.toc);
 					rgb(162, 182, 243) 66%,
 					rgb(127, 218, 235) 100%
 				);
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
-				display: grid;
-				gap: 1rem;
 			}
 
 			.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
