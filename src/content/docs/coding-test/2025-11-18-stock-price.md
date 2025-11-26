@@ -1,7 +1,7 @@
 ---
 title: "주식가격 (Lv.2)"
 description: 주식가격 문제 풀이.
-date: 2025-11-18"
+date: 2025-11-18
 tags: ["programmers", "Stack", "Queue"]
 draft: false
 preferBodyH1: true

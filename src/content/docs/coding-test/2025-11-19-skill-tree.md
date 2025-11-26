@@ -1,7 +1,7 @@
 ---
 title: "스킬트리 (Lv.2)"
 description: 스킬트리 문제 풀이.
-date: 2025-11-19"
+date: 2025-11-19
 tags: ["programmers"]
 draft: false
 preferBodyH1: true

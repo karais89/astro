@@ -1,7 +1,7 @@
 ---
 title: "소수 찾기 (Lv.2)"
 description: 소수 찾기 문제 풀이.
-date: 2025-11-26"
+date: 2025-11-26
 tags: ["programmers", "dfs"]
 draft: false
 preferBodyH1: true
@@ -84,6 +84,52 @@ public class Solution {
     }
 }
 ```
+
+## 최적화된 풀이 (C#)
+
+```csharp
+using System;
+using System.Collections.Generic;
+
+public class Solution {
+    HashSet<int> primes = new HashSet<int>();
+    bool[] visited;
+    
+    public int solution(string numbers) {
+        visited = new bool[numbers.Length];
+        Dfs(0, numbers);
+        return primes.Count;
+    }
+    
+    void Dfs(int currentVal, string numbers) {
+        // 현재 숫자가 소수이면 집합에 추가
+        if (IsPrime(currentVal)) primes.Add(currentVal);
+        
+        for (int i = 0; i < numbers.Length; i++) {
+            if (visited[i]) continue;
+            
+            visited[i] = true;
+            // 문자열 연결 대신 정수 연산 사용 (성능 이점)
+            int nextVal = currentVal * 10 + (numbers[i] - '0');
+            Dfs(nextVal, numbers);
+            visited[i] = false;
+        }
+    }
+    
+    bool IsPrime(int n) {
+        if (n < 2) return false;
+        if (n == 2) return true;
+        if (n % 2 == 0) return false;
+        
+        for (int i = 3; i * i <= n; i += 2) {
+            if (n % i == 0) return false;
+        }
+        return true;
+    }
+}
+```
+
+- 문자열 조작 대신 정수 연산을 사용하여 오버헤드를 줄이고, 코드를 더 간결하게 개선한 풀이입니다.
 
 ## 다른 사람의 풀이
 
@@ -172,5 +218,5 @@ public class Solution {
 
 - 소수 찾기 문제 & dfs 문제. 두개만 알고 있다면 풀 수 있는 문제
 - 패턴: “순열 생성(백트래킹) + 중복 제거(HashSet) + 소수 판정” 조합.
-- 팁: 문자열 대신 정수 누적, 방문은 비트마스크로 처리.
+- 팁: 문자열 연결(`string` + `string`)은 메모리 할당이 발생하므로, 정수 누적(`int` * 10 + `int`) 방식을 사용하면 더 효율적입니다.
 - 복습 포인트: 백트래킹(재귀/비트마스크), 에라토스테네스 체, 소수 판정(√n 최적화).

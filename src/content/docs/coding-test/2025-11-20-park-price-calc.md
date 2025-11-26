@@ -1,7 +1,7 @@
 ---
 title: "주차 요금 계산 (Lv.2)"
 description: 주차 요금 계산 문제 풀이.
-date: 2025-11-20"
+date: 2025-11-20
 tags: ["programmers"]
 draft: false
 preferBodyH1: true
