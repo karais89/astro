@@ -103,7 +103,10 @@ export default defineConfig({
         PageTitle: './src/components/starlight/PageTitle.astro',
         TwoColumnContent: './src/components/starlight/TwoColumnContent.astro',
       },
-      customCss: ['./src/styles/related.css'],
+      customCss: [
+        './src/styles/related.css',
+        './src/styles/global.css'
+      ],
       // Show "Last updated" on each page footer
       lastUpdated: true,
       // Add "Edit this page" links using your repo

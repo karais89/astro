@@ -1,26 +1,33 @@
 ---
 // Starlight's PAGE_TITLE_ID is an internal constant ('_top').
 // Avoid deep-importing internal modules; define locally to prevent resolution errors.
-const PAGE_TITLE_ID = '_top';
+const PAGE_TITLE_ID = "_top";
+const { entry, labels } = Astro.props;
 const route = Astro.locals.starlightRoute;
-const data = route?.entry?.data ?? {};
-const preferBodyH1 = data?.preferBodyH1 === true;
+
+// Robust data detection: check props first, then route locals
+const entryData = entry?.data ?? route?.entry?.data ?? {};
+// Check both camelCase and kebab-case for frontmatter compatibility
+const preferBodyH1 =
+  entryData.preferBodyH1 === true || entryData["prefer-body-h1"] === true;
+const title = entryData.title;
 ---
-<h1 id={PAGE_TITLE_ID} class={preferBodyH1 ? 'sr-only' : undefined}>
-  {route.entry.data.title}
-</h1>
+
+{
+  preferBodyH1 ? (
+    <h1 id={PAGE_TITLE_ID} class="sr-only" aria-hidden="true">
+      {title}
+    </h1>
+  ) : (
+    <h1 id={PAGE_TITLE_ID} class="page-title-gradient">
+      {title}
+    </h1>
+  )
+}
 
 <style>
   .sr-only {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0 0 0 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
+    display: none !important;
   }
   /* 제목을 시각적으로 숨기는 경우, 바로 다음 패널의 구분선 제거 */
   :global(.content-panel:has(.sr-only) + .content-panel) {
@@ -40,7 +47,12 @@ const preferBodyH1 = data?.preferBodyH1 === true;
     color: var(--sl-color-white);
   }
   /* 본문 첫 H1을 헤더 H1과 동일한 타이포로 통일 (preferBodyH1=true 케이스) */
-  :global(.content-panel:has(.sr-only) + .content-panel .sl-heading-wrapper.level-h1 > h1) {
+  :global(
+    .content-panel:has(.sr-only)
+      + .content-panel
+      .sl-heading-wrapper.level-h1
+      > h1
+  ) {
     display: block !important;
     padding-inline-end: 0 !important; /* 앵커 아이콘 공간 제거 */
     margin: 0 !important; /* 상단 간격은 위에서 패널 패딩 제거로 처리 */
@@ -50,7 +62,12 @@ const preferBodyH1 = data?.preferBodyH1 === true;
     color: var(--sl-color-white);
   }
   /* 본문 첫 H1의 앵커 아이콘 숨김(헤더 H1과 동일한 룩) */
-  :global(.content-panel:has(.sr-only) + .content-panel .sl-heading-wrapper.level-h1 .sl-anchor-link) {
+  :global(
+    .content-panel:has(.sr-only)
+      + .content-panel
+      .sl-heading-wrapper.level-h1
+      .sl-anchor-link
+  ) {
     display: none !important;
   }
 </style>

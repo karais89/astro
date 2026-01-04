@@ -1,16 +1,17 @@
 ---
-import config from 'virtual:starlight/user-config';
+import config from "virtual:starlight/user-config";
 
 const DEFAULT_TOC = { minHeadingLevel: 2, maxHeadingLevel: 3 };
-const PAGE_TITLE_ID = '_top';
+const PAGE_TITLE_ID = "_top";
 
 const { starlightRoute, t } = Astro.locals;
-const isSplash = starlightRoute.entry?.data?.template === 'splash';
+const isSplash = starlightRoute.entry?.data?.template === "splash";
 
 function normalizeTocConfig(rawConfig) {
 	if (rawConfig === false) return undefined;
-	if (rawConfig === true || rawConfig === undefined) return { ...DEFAULT_TOC };
-	if (rawConfig && typeof rawConfig === 'object') {
+	if (rawConfig === true || rawConfig === undefined)
+		return { ...DEFAULT_TOC };
+	if (rawConfig && typeof rawConfig === "object") {
 		const { minHeadingLevel, maxHeadingLevel } = rawConfig;
 		return {
 			minHeadingLevel: minHeadingLevel ?? DEFAULT_TOC.minHeadingLevel,
@@ -22,9 +23,16 @@ function normalizeTocConfig(rawConfig) {
 
 function buildToc(headings, tocConfig) {
 	const filtered = (headings ?? []).filter(
-		({ depth }) => depth >= tocConfig.minHeadingLevel && depth <= tocConfig.maxHeadingLevel
+		({ depth }) =>
+			depth >= tocConfig.minHeadingLevel &&
+			depth <= tocConfig.maxHeadingLevel,
 	);
-	const root = { depth: 2, slug: PAGE_TITLE_ID, text: t('tableOfContents.overview'), children: [] };
+	const root = {
+		depth: 2,
+		slug: PAGE_TITLE_ID,
+		text: t("tableOfContents.overview"),
+		children: [],
+	};
 	const items = [root];
 	for (const heading of filtered) {
 		injectTocItem(items, { ...heading, children: [] });
@@ -44,7 +52,7 @@ function injectTocItem(items, item) {
 if (isSplash && !starlightRoute.toc) {
 	const frontmatterToc = starlightRoute.entry?.data?.tableOfContents;
 	const resolvedConfig = normalizeTocConfig(
-		frontmatterToc !== undefined ? frontmatterToc : config.tableOfContents
+		frontmatterToc !== undefined ? frontmatterToc : config.tableOfContents,
 	);
 	if (resolvedConfig) {
 		const items = buildToc(starlightRoute.headings ?? [], resolvedConfig);
@@ -60,11 +68,29 @@ const hasToc = Boolean(starlightRoute.toc);
 {
 	isSplash ? (
 		<>
-			<div class={['splash-content-shell', hasToc && 'splash-content-shell--with-toc'].filter(Boolean).join(' ')}>
+			<div
+				class={[
+					"splash-content-shell",
+					hasToc && "splash-content-shell--with-toc",
+				]
+					.filter(Boolean)
+					.join(" ")}
+			>
 				{hasToc && (
-					<aside class="splash-floating-toc print:hidden" aria-label="On this page">
-						<div class="splash-floating-toc__inner">
-							<slot name="right-sidebar" />
+					<aside
+						class="splash-floating-toc print:hidden"
+						aria-label="On this page"
+					>
+						<details class="mobile-toc-toggle">
+							<summary class="mobile-toc-summary">
+								<span>목차 보기 (TOC)</span>
+								<span class="icon">↓</span>
+							</summary>
+						</details>
+						<div class="splash-toc-content">
+							<div class="splash-floating-toc__inner">
+								<slot name="right-sidebar" />
+							</div>
 						</div>
 					</aside>
 				)}
@@ -75,16 +101,16 @@ const hasToc = Boolean(starlightRoute.toc);
 		</>
 	) : (
 		<div class="lg:sl-flex">
-			{
-				starlightRoute.toc && (
-					<aside class="right-sidebar-container print:hidden">
-						<div class="right-sidebar">
-							<slot name="right-sidebar" />
-						</div>
-					</aside>
-				)
-			}
-			<div class="main-pane"><slot /></div>
+			{starlightRoute.toc && (
+				<aside class="right-sidebar-container print:hidden">
+					<div class="right-sidebar">
+						<slot name="right-sidebar" />
+					</div>
+				</aside>
+			)}
+			<div class="main-pane">
+				<slot />
+			</div>
 		</div>
 	)
 }
@@ -94,8 +120,13 @@ const hasToc = Boolean(starlightRoute.toc);
 		.splash-content-shell {
 			display: block;
 			margin-inline: auto;
-			padding-inline: clamp(1.5rem, 5vw, 6rem);
+			padding-inline: clamp(
+				1rem,
+				3vw,
+				6rem
+			); /* Reduced from 1.5rem to 1rem for more space on mobile */
 			max-width: min(100%, 80rem);
+			overflow: visible; /* Ensure fixed elements aren't clipped */
 		}
 
 		.splash-main-pane {
@@ -103,15 +134,224 @@ const hasToc = Boolean(starlightRoute.toc);
 		}
 
 		.splash-floating-toc {
-			margin-top: 2.5rem;
+			display: block;
+			margin-top: 1.5rem;
+			width: 100%; /* Removed !important to allow desktop override */
+			z-index: 10;
+		}
+
+		/* Mobile Collapsible TOC Toggle */
+		.mobile-toc-toggle {
 			width: 100%;
+			background: color-mix(
+				in srgb,
+				var(--sl-color-bg-sidebar),
+				transparent 60%
+			);
+			border: 1px solid var(--sl-color-hairline);
+			border-radius: 0.75rem;
+			overflow: hidden;
+			backdrop-filter: blur(12px);
+			margin-bottom: 0.5rem;
+		}
+		.mobile-toc-summary {
+			list-style: none;
+			padding: 0.8rem 1.2rem;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			cursor: pointer;
+			font-weight: 600;
+			font-size: 0.9rem;
+			color: var(--sl-color-gray-2);
+			transition: all 0.2s;
+		}
+		.mobile-toc-summary::-webkit-details-marker {
+			display: none;
+		}
+		.mobile-toc-summary:hover {
+			background: color-mix(
+				in srgb,
+				var(--sl-color-accent),
+				transparent 90%
+			);
+			color: var(--sl-color-white);
+		}
+		.mobile-toc-summary .icon {
+			font-size: 0.8rem;
+			transition: transform 0.3s ease;
+			color: var(--sl-color-accent);
+		}
+		.mobile-toc-toggle[open] .mobile-toc-summary .icon {
+			transform: rotate(180deg);
+		}
+
+		.splash-toc-content {
+			display: none;
+		}
+		.mobile-toc-toggle[open] + .splash-toc-content {
+			display: block;
 		}
 
 		.splash-floating-toc__inner {
 			position: relative;
+			padding: 0; /* Changed from 1rem to 0 to let the inner panel handle padding */
 		}
 
-		@media (min-width: 100rem) {
+		/* Global TOC Panel Styles (Shared between Mobile & Desktop) */
+		.splash-floating-toc__inner :global(.right-sidebar-panel) {
+			position: relative;
+			display: block !important; /* Force visibility which might be hidden by Starlight on mobile */
+			width: 100%;
+			padding: 1.5rem;
+			border-radius: 1.25rem;
+			background: color-mix(
+				in srgb,
+				var(--sl-color-bg-sidebar) 85%,
+				transparent 15%
+			);
+			border: 1px solid
+				color-mix(
+					in srgb,
+					var(--sl-color-hairline-light) 30%,
+					transparent 70%
+				);
+			box-shadow:
+				0 20px 40px rgba(0, 0, 0, 0.2),
+				inset 0 0 20px rgba(255, 255, 255, 0.02);
+			backdrop-filter: blur(20px);
+			color: var(--sl-color-text);
+			transition: all 0.3s ease;
+		}
+
+		/* Hide redundant header on mobile inside our custom toggle */
+		@media (max-width: 72rem) {
+			/* Hide EVERY redundant header/toggle inside our TOC content area ONLY on mobile-toggle mode */
+			.mobile-toc-toggle[open] + .splash-toc-content :global(h2),
+			.mobile-toc-toggle[open] + .splash-toc-content :global(summary),
+			.mobile-toc-toggle[open]
+				+ .splash-toc-content
+				:global(.mobile-toc-header) {
+				display: none !important;
+			}
+			/* Ensure the content is always visible if it was inside a nested details when we're mobile-toggle mode */
+			.mobile-toc-toggle[open] + .splash-toc-content :global(details) {
+				display: block !important;
+			}
+			.splash-floating-toc__inner :global(.right-sidebar-panel) {
+				background: transparent;
+				border: none;
+				box-shadow: none;
+				backdrop-filter: none;
+				padding: 0.5rem 0.5rem 1.5rem;
+				width: 100%;
+				max-width: none;
+			}
+			.splash-floating-toc__inner
+				:global(.right-sidebar-panel .sl-container) {
+				max-width: none;
+				width: 100%;
+			}
+			.splash-floating-toc__inner :global(.right-sidebar-panel nav),
+			.splash-floating-toc__inner
+				:global(.right-sidebar-panel .sl-container),
+			.splash-floating-toc__inner :global(.right-sidebar-panel ul) {
+				width: 100% !important;
+				max-width: none !important;
+				height: auto !important;
+				overflow: visible !important;
+			}
+		}
+
+		/* Left accent line - more subtle gradient */
+		.splash-floating-toc__inner :global(.right-sidebar-panel::after) {
+			content: "";
+			position: absolute;
+			top: 1.5rem;
+			left: 0;
+			bottom: 1.5rem;
+			width: 3px;
+			border-radius: 0 4px 4px 0;
+			background: linear-gradient(
+				180deg,
+				var(--sl-color-accent-high) 0%,
+				var(--sl-color-accent) 100%
+			);
+			opacity: 0.7;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
+			display: grid;
+			gap: 1rem;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel h2) {
+			margin: 0;
+			font-size: 0.75rem;
+			font-weight: 700;
+			letter-spacing: 0.1em;
+			text-transform: uppercase;
+			color: var(--sl-color-accent-high);
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel ul) {
+			margin: 0;
+			padding: 0;
+			display: grid;
+			gap: 0.4rem;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel li) {
+			list-style: none;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel a) {
+			display: block;
+			padding: 0.5rem 1rem;
+			border-radius: 0.5rem;
+			font-size: 0.875rem;
+			color: var(--sl-color-gray-3);
+			text-decoration: none;
+			border-left: 2px solid transparent;
+			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+			width: 100%;
+		}
+
+		.splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
+		.splash-floating-toc__inner
+			:global(.right-sidebar-panel a:focus-visible) {
+			color: var(--sl-color-white);
+			background: color-mix(
+				in srgb,
+				var(--sl-color-accent),
+				transparent 92%
+			);
+			padding-left: 1rem;
+			border-left-color: var(--sl-color-accent-low);
+		}
+
+		.splash-floating-toc__inner
+			:global(.right-sidebar-panel a[aria-current="true"]) {
+			color: var(--sl-color-accent-high);
+			background: color-mix(
+				in srgb,
+				var(--sl-color-accent),
+				transparent 88%
+			);
+			border-left-color: var(--sl-color-accent);
+			font-weight: 600;
+			padding-left: 1rem;
+		}
+
+		.splash-floating-toc__inner
+			:global(.right-sidebar-panel .sl-container) {
+			width: 100%;
+		}
+
+		@media (min-width: 72rem) {
 			.splash-main-pane {
 				max-width: var(--sl-content-width);
 				margin-inline: auto;
@@ -119,120 +359,68 @@ const hasToc = Boolean(starlightRoute.toc);
 
 			.splash-floating-toc {
 				position: fixed;
-				top: calc(var(--sl-nav-height) + 2rem);
-				right: clamp(1rem, 2vw, 6rem);
-				width: clamp(12rem, 16vw, 18rem);
+				display: block !important;
+				top: calc(var(--sl-nav-height) + 3.5rem);
+				right: clamp(1rem, 3vw, 5rem) !important;
+				left: auto !important; /* Force it out of any inherited left alignment */
+				width: clamp(14rem, 18vw, 20rem);
 				margin-top: 0;
+				z-index: 1000 !important; /* Ensure it's on top of everything */
+			}
+
+			/* Hide toggle button on desktop */
+			.mobile-toc-toggle {
+				display: none !important;
+			}
+
+			/* Always show content on desktop */
+			.splash-toc-content {
+				display: block !important;
 			}
 
 			.splash-floating-toc__inner {
 				position: static;
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel) {
-				position: relative;
-				width: 100%;
-				padding: 1.5rem 1.6rem 1.6rem calc(1.6rem + 6px);
-				border-radius: 1.05rem;
-				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 90%, transparent 10%);
-				border: 1px solid color-mix(in srgb, var(--sl-color-hairline) 68%, transparent 32%);
-				box-shadow: 0 24px 46px rgba(15, 23, 42, 0.12);
-				backdrop-filter: blur(18px);
-				color: var(--sl-color-text);
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel::after) {
-				content: '';
-				position: absolute;
-				top: 0;
-				left: 0;
-				bottom: 0;
-				width: 6px;
-				border-radius: 1.05rem 0 0 1.05rem;
-				background: linear-gradient(
-					180deg,
-					rgb(248, 163, 139) 0%,
-					rgb(232, 172, 205) 33%,
-					rgb(162, 182, 243) 66%,
-					rgb(127, 218, 235) 100%
-				);
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel nav) {
-				display: grid;
-				gap: 0.9rem;
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel h2) {
-				margin: 0;
-				font-size: var(--sl-text-xs);
-				font-weight: 600;
-				letter-spacing: 0.12em;
-				text-transform: uppercase;
-				color: color-mix(in srgb, var(--sl-color-text) 60%, transparent 40%);
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel ul) {
-				margin: 0;
 				padding: 0;
-				display: grid;
-				gap: 0.4rem;
 			}
 
-			.splash-floating-toc__inner :global(.right-sidebar-panel .sl-container) {
-				width: 100%;
+			/* Desktop specific styles for the panel */
+			.splash-floating-toc__inner :global(.right-sidebar-panel) {
+				display: block !important;
+				visibility: visible !important;
+				opacity: 1 !important;
+				background: color-mix(
+					in srgb,
+					var(--sl-color-bg-sidebar) 85%,
+					transparent 15%
+				);
+				border: 1px solid
+					color-mix(
+						in srgb,
+						var(--sl-color-hairline-light) 30%,
+						transparent 70%
+					);
+				box-shadow:
+					0 20px 40px rgba(0, 0, 0, 0.2),
+					inset 0 0 20px rgba(255, 255, 255, 0.02);
+				backdrop-filter: blur(20px);
 			}
 
-			.splash-floating-toc__inner :global(.right-sidebar-panel li) {
-				list-style: none;
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel a) {
-				display: block;
-				padding: 0.5rem 0.85rem;
-				border-radius: 0.5rem;
-				font-size: var(--sl-text-sm);
-				color: color-mix(in srgb, var(--sl-color-text) 78%, transparent 22%);
-				background: transparent;
-				border: 1px solid transparent;
-				transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
-			.splash-floating-toc__inner :global(.right-sidebar-panel a:focus-visible) {
-				color: var(--sl-color-text);
-				transform: translateX(2px);
-				border-color: color-mix(in srgb, var(--sl-color-accent) 35%, transparent 65%);
-				background: color-mix(in srgb, transparent 90%, var(--sl-color-accent) 10%);
-			}
-
-			.splash-floating-toc__inner :global(.right-sidebar-panel a[aria-current='true']) {
-				color: var(--sl-color-text);
-				background: color-mix(in srgb, transparent 82%, var(--sl-color-accent) 18%);
-				border-color: color-mix(in srgb, var(--sl-color-accent) 55%, transparent 45%);
-				font-weight: 600;
-			}
-
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel) {
-				background: color-mix(in srgb, var(--sl-color-bg-sidebar) 78%, rgba(15, 23, 42, 0.18) 22%);
-				border-color: color-mix(in srgb, var(--sl-color-hairline-light) 80%, transparent 20%);
-				box-shadow: 0 28px 60px rgba(2, 6, 23, 0.6);
-			}
-
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a) {
-				color: var(--sl-color-gray-3);
-				background: color-mix(in srgb, transparent 96%, rgba(148, 163, 184, 0.22) 4%);
-			}
-
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a:focus-visible) {
-				background: color-mix(in srgb, transparent 86%, rgba(96, 165, 250, 0.45) 14%);
-				border-color: color-mix(in srgb, rgba(96, 165, 250, 0.6) 60%, transparent 40%);
-			}
-
-			:global(:root[data-theme='dark']) .splash-floating-toc__inner :global(.right-sidebar-panel a[aria-current='true']) {
-				background: color-mix(in srgb, transparent 78%, rgba(59, 130, 246, 0.5) 22%);
-				border-color: rgba(59, 130, 246, 0.6);
+			:global(:root[data-theme="dark"])
+				.splash-floating-toc__inner
+				:global(.right-sidebar-panel) {
+				background: color-mix(
+					in srgb,
+					var(--sl-color-bg-sidebar) 75%,
+					transparent 25%
+				);
+				border-color: color-mix(
+					in srgb,
+					var(--sl-color-white) 10%,
+					transparent 90%
+				);
+				box-shadow:
+					0 30px 60px rgba(0, 0, 0, 0.4),
+					inset 0 0 30px rgba(255, 255, 255, 0.01);
 			}
 		}
 
@@ -246,7 +434,12 @@ const hasToc = Boolean(starlightRoute.toc);
 				order: 2;
 				position: relative;
 				width: calc(
-					var(--sl-sidebar-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2
+					var(--sl-sidebar-width) +
+						(
+							100% - var(--sl-content-width) -
+								var(--sl-sidebar-width)
+						) /
+						2
 				);
 			}
 
@@ -270,7 +463,12 @@ const hasToc = Boolean(starlightRoute.toc);
 
 				order: 1;
 				width: calc(
-					var(--sl-content-width) + (100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2
+					var(--sl-content-width) +
+						(
+							100% - var(--sl-content-width) -
+								var(--sl-sidebar-width)
+						) /
+						2
 				);
 			}
 		}

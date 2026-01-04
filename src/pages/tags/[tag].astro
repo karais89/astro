@@ -1,10 +1,13 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { getCollection } from 'astro:content';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const entries = await getCollection('docs', ({ id, data }) => {
-    const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+  const entries = await getCollection("docs", ({ id, data }) => {
+    const inSections =
+      id.startsWith("til/") ||
+      id.startsWith("coding-test/") ||
+      id.startsWith("blog/");
     return inSections && data?.draft !== true;
   });
   const tags = new Set<string>();
@@ -19,47 +22,153 @@ export async function getStaticPaths() {
   return Array.from(tags).map((tag) => ({ params: { tag } }));
 }
 
-const base = import.meta.env.BASE_URL || '/';
+const base = import.meta.env.BASE_URL || "/";
 const { tag } = Astro.params;
-const target = String(tag ?? '');
+const target = String(tag ?? "");
 
-const entries = await getCollection('docs', ({ id, data }) => {
-  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+const entries = await getCollection("docs", ({ id, data }) => {
+  const inSections =
+    id.startsWith("til/") ||
+    id.startsWith("coding-test/") ||
+    id.startsWith("blog/");
   if (!(inSections && data?.draft !== true)) return false;
   const tags = (data as any)?.tags as string[] | undefined;
   return Array.isArray(tags) && tags.some((t) => String(t).trim() === target);
 });
 
-const getDate = (e: any) => new Date((e.data?.date ?? e.data?.updatedAt ?? 0) as string | number);
+const getDate = (e: any) =>
+  new Date((e.data?.date ?? e.data?.updatedAt ?? 0) as string | number);
 const posts = entries
-  .filter((e) => e.id !== 'index' && !e.id.endsWith('/index'))
+  .filter((e) => e.id !== "index" && !e.id.endsWith("/index"))
   .sort((a, b) => Number(getDate(b)) - Number(getDate(a)));
 
-const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
+const hrefFor = (entry: any) =>
+  `${base}${(entry as any).slug ?? (entry as any).id}/`;
 
 const frontmatter = {
   title: `Tag: ${target}`,
   description: `Posts tagged with "${target}"`,
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/tags/[tag].astro',
+  editUrl:
+    "https://github.com/Lonpeach/astro/edit/main/src/pages/tags/[tag].astro",
+  tableOfContents: false,
+  preferBodyH1: true,
 };
 ---
-<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <p><a href={`${base}tags/`}>← All tags</a></p>
 
-  {posts.length === 0 ? (
-    <p>No posts found for this tag.</p>
-  ) : (
-    <ul>
-      {posts.map((post) => (
-        <li>
-          <a href={hrefFor(post)}>{(post as any).data?.title ?? (post as any).slug ?? post.id}</a>
-          {((post.data as any)?.date || (post.data as any)?.updatedAt) && (
-            <small style="margin-left: 0.5rem; opacity: 0.7;">
-              {new Date(((post.data as any)?.date ?? (post.data as any)?.updatedAt) as string).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
-            </small>
-          )}
-        </li>
-      ))}
-    </ul>
-  )}
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <header class="tag-header">
+    <a href={`${base}tags/`} class="back-btn">
+      <span class="icon">←</span>
+      <span>전체 태그</span>
+    </a>
+    <h1 class="tag-title page-title-gradient">
+      <span class="label">태그:</span>
+      {target}
+    </h1>
+  </header>
+
+  {
+    entries.length === 0 ? (
+      <p class="empty-msg">해당 태그의 글이 없습니다.</p>
+    ) : (
+      <div class="post-grid">
+        {entries.map((post) => {
+          const href = hrefFor(post);
+          const title =
+            (post as any).data?.title ?? (post as any).slug ?? post.id;
+          const d = new Date(
+            ((post.data as any)?.date ??
+              (post.data as any)?.updatedAt) as string,
+          );
+          const dateIso = d.toISOString().slice(0, 10);
+          const dateKST = d.toLocaleDateString("ko-KR", {
+            timeZone: "Asia/Seoul",
+          });
+          const desc = (post.data as any)?.description;
+          const section = post.id.split("/")[0].toUpperCase();
+
+          return (
+            <a href={href} class="glass-card-post">
+              <div class="card-glow-bg" />
+              <div class="inner">
+                <div class="meta">
+                  <span class="meta-tag">{section}</span>
+                  <time datetime={dateIso} class="meta-date">
+                    {dateKST}
+                  </time>
+                </div>
+                <h3 class="post-title">{title}</h3>
+                {desc && <p class="post-desc">{desc}</p>}
+                <div class="action">
+                  <span>더 보기</span>
+                  <span class="icon">→</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )
+  }
+
+  <style>
+    .tag-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 3rem;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 95%);
+      border: 1px solid
+        color-mix(in srgb, var(--sl-color-accent), transparent 80%);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      margin-bottom: 1.5rem;
+    }
+    .back-btn:hover {
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 85%);
+      border-color: var(--sl-color-accent);
+      transform: translateX(-2px);
+    }
+    .tag-title {
+      font-size: 2.75rem !important;
+      font-weight: 900 !important;
+      color: var(--sl-color-white);
+      letter-spacing: -0.02em;
+      margin: 0 !important;
+    }
+    .tag-title .label {
+      color: var(--sl-color-gray-4);
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+    .post-grid {
+      margin-top: 1rem;
+    }
+    .empty-msg {
+      color: var(--sl-color-gray-3);
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    @media (max-width: 48rem) {
+      .tag-title {
+        font-size: 2rem !important;
+      }
+      .tag-title .label {
+        font-size: 1.2rem;
+      }
+    }
+  </style>
 </StarlightPage>

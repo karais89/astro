@@ -1,18 +1,24 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { getCollection } from 'astro:content';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
 
-const base = import.meta.env.BASE_URL || '/';
+const base = import.meta.env.BASE_URL || "/";
 
 // Collect all posts across sections (til, coding-test, blog)
-const entries = (await getCollection('docs', ({ id, data }) => {
-  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
-  return inSections && (data as any)?.draft !== true;
-}))
-  .filter((e) => (e.data as any)?.date);
+const entries = (
+  await getCollection("docs", ({ id, data }) => {
+    const inSections =
+      id.startsWith("til/") ||
+      id.startsWith("coding-test/") ||
+      id.startsWith("blog/");
+    return inSections && (data as any)?.draft !== true;
+  })
+).filter((e) => (e.data as any)?.date);
 
 const years = Array.from(
-  new Set(entries.map((e) => new Date(((e.data as any)?.date) as string).getFullYear()))
+  new Set(
+    entries.map((e) => new Date((e.data as any)?.date as string).getFullYear()),
+  ),
 ).sort((a, b) => b - a);
 
 // Aggregate tag counts
@@ -28,48 +34,157 @@ for (const e of entries) {
 }
 const popularTags = Array.from(tagCounts.entries())
   .map(([name, count]) => ({ name, count }))
-  .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name))
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name))
   .slice(0, 24);
 
 const frontmatter = {
-  title: '전체 아카이브',
-  description: '연도별 전체 글 모아보기 (TIL, 코딩테스트, 블로그)',
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/archive/index.astro',
+  title: "전체 아카이브",
+  description: "과거부터 현재까지의 모든 기록을 연도별로 찾아보세요.",
+  editUrl:
+    "https://github.com/Lonpeach/astro/edit/main/src/pages/archive/index.astro",
+  tableOfContents: false,
+  preferBodyH1: true,
 };
 ---
-<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  {popularTags.length > 0 && (
-    <section aria-labelledby="popular-tags">
-      <h2 id="popular-tags">인기 태그</h2>
-      <ul class="tags">
-        {popularTags.map(({ name, count }) => (
-          <li>
-            <a class="tag" href={`${base}tags/${encodeURIComponent(name)}/`}>{name}</a>
-            <span class="count">{count}</span>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )}
 
-  {years.length === 0 ? (
-    <p>아카이브가 비어 있습니다.</p>
-  ) : (
-    <section aria-labelledby="by-year">
-      <h2 id="by-year">연도별</h2>
-      <ul>
-        {years.map((year) => (
-          <li><a href={`${base}archive/${year}/`}>{year}</a></li>
-        ))}
-      </ul>
-    </section>
-  )}
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  {
+    popularTags.length > 0 && (
+      <section class="archive-section" aria-labelledby="popular-tags">
+        <h2 id="popular-tags" class="section-title text-gradient">
+          인기 태그
+        </h2>
+        <div class="tag-cloud">
+          {popularTags.map(({ name, count }) => (
+            <a
+              class="glass-tag"
+              href={`${base}tags/${encodeURIComponent(name)}/`}
+            >
+              <span class="tag-name">{name}</span>
+              <span class="tag-count">{count}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    years.length === 0 ? (
+      <p>아카이브가 비어 있습니다.</p>
+    ) : (
+      <section class="archive-section" aria-labelledby="by-year">
+        <h2 id="by-year" class="section-title text-gradient">
+          연도별 기록
+        </h2>
+        <div class="year-grid">
+          {years.map((year) => (
+            <a
+              href={`${base}archive/${year}/`}
+              class="glass-card-post year-card"
+            >
+              <div class="card-glow-bg" />
+              <div class="inner year-inner">
+                <span class="year-label">{year}</span>
+                <span class="year-desc">이 해의 모든 기록 보기</span>
+                <div class="action">
+                  <span>탐색하기</span>
+                  <span class="icon">→</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <style>
-    .tags { list-style: none; padding: 0; margin: 0.5rem 0 1.25rem; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
-    .tags li { display: flex; align-items: center; gap: 0.5rem; }
-    .tag { text-decoration: none; color: var(--sl-color-text); border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.25rem 0.75rem; font-weight: 600; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); }
-    .tag:hover, .tag:focus { border-color: var(--sl-color-gray-5); }
-    .count { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+    .archive-section {
+      margin-bottom: 4rem;
+    }
+    .section-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      color: var(--sl-color-white);
+    }
+
+    /* Tag Cloud */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .glass-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      background: color-mix(in srgb, var(--sl-color-bg-nav), transparent 80%);
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 999px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-tag:hover {
+      border-color: var(--sl-color-accent);
+      background: color-mix(
+        in srgb,
+        var(--sl-color-accent-low),
+        transparent 80%
+      );
+      transform: translateY(-2px);
+    }
+    .tag-name {
+      color: var(--sl-color-text);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    .tag-count {
+      font-size: 0.8rem;
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 90%);
+      padding: 0.1rem 0.5rem;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Year Grid */
+    .year-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+    .year-card {
+      min-height: 160px !important;
+    }
+    .year-inner {
+      padding: 2rem !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .year-label {
+      font-size: 2.5rem;
+      font-weight: 900;
+      line-height: 1;
+      color: var(--sl-color-white);
+      margin-bottom: 0.5rem;
+    }
+    .year-desc {
+      font-size: 0.95rem;
+      color: var(--sl-color-gray-3);
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 48rem) {
+      .year-grid {
+        grid-template-columns: 1fr;
+      }
+      .year-label {
+        font-size: 2rem;
+      }
+    }
   </style>
 </StarlightPage>

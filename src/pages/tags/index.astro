@@ -1,11 +1,14 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { getCollection } from 'astro:content';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
 
-const base = import.meta.env.BASE_URL || '/';
+const base = import.meta.env.BASE_URL || "/";
 
-const entries = await getCollection('docs', ({ id, data }) => {
-  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
+const entries = await getCollection("docs", ({ id, data }) => {
+  const inSections =
+    id.startsWith("til/") ||
+    id.startsWith("coding-test/") ||
+    id.startsWith("blog/");
   return inSections && data?.draft !== true;
 });
 
@@ -21,37 +24,112 @@ for (const e of entries) {
 }
 const tags = Array.from(tagCounts.entries())
   .map(([name, count]) => ({ name, count }))
-  .sort((a, b) => (b.count - a.count) || a.name.localeCompare(b.name));
+  .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
 const frontmatter = {
-  title: 'Tags',
-  description: 'Browse posts by tag across TIL, coding-test, and blog.',
-  editUrl: 'https://github.com/karais89/astro/edit/main/src/pages/tags/index.astro',
+  title: "테즈(Tags)",
+  description: "관심 분야별 글 모아보기",
+  editUrl:
+    "https://github.com/Lonpeach/astro/edit/main/src/pages/tags/index.astro",
+  tableOfContents: false,
+  preferBodyH1: true,
 };
 ---
+
 <StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <section aria-labelledby="tags-heading">
-    <h1 id="tags-heading">All Tags</h1>
-    {tags.length === 0 ? (
-      <p>No tags found.</p>
-    ) : (
-      <ul class="tags">
-        {tags.map(({ name, count }) => (
-          <li>
-            <a class="tag" href={`${base}tags/${encodeURIComponent(name)}/`}>{name}</a>
-            <span class="count" aria-label="count">{count}</span>
-          </li>
-        ))}
-      </ul>
-    )}
+  <section class="tags-section" aria-labelledby="tags-heading">
+    {
+      tags.length === 0 ? (
+        <p class="empty-msg">등록된 태그가 없습니다.</p>
+      ) : (
+        <div class="tag-cloud">
+          {tags.map(({ name, count }) => (
+            <a
+              class="glass-tag"
+              href={`${base}tags/${encodeURIComponent(name)}/`}
+            >
+              <span class="tag-name">{name}</span>
+              <span class="tag-count">{count}</span>
+            </a>
+          ))}
+        </div>
+      )
+    }
   </section>
 
   <style>
-    .tags { list-style: none; padding: 0; margin: 1rem 0; display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
-    .tags li { display: flex; align-items: center; gap: 0.5rem; }
-    .tag { text-decoration: none; color: var(--sl-color-text); border: 1px solid var(--sl-color-gray-6); border-radius: 999px; padding: 0.25rem 0.75rem; font-weight: 600; background: color-mix(in hsl, var(--sl-color-gray-7) 40%, transparent); }
-    .tag:hover, .tag:focus { border-color: var(--sl-color-gray-5); }
-    .count { color: var(--sl-color-gray-2); font-variant-numeric: tabular-nums; }
+    .tags-section {
+      margin-bottom: 4rem;
+    }
+    .page-header {
+      margin-bottom: 3rem;
+    }
+    .page-title {
+      font-size: 2.75rem !important;
+      font-weight: 900 !important;
+      color: var(--sl-color-white);
+      margin-bottom: 0.5rem !important;
+    }
+    .page-description {
+      color: var(--sl-color-gray-3);
+      font-size: 1.1rem;
+    }
+
+    /* Tag Cloud - Unified with Archive */
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .glass-tag {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      padding: 0.6rem 1.25rem;
+      background: color-mix(in srgb, var(--sl-color-bg-nav), transparent 85%);
+      border: 1px solid var(--sl-color-gray-6);
+      border-radius: 999px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-tag:hover {
+      border-color: var(--sl-color-accent);
+      background: color-mix(
+        in srgb,
+        var(--sl-color-accent-low),
+        transparent 85%
+      );
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.3);
+    }
+    .tag-name {
+      color: var(--sl-color-text);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .tag-count {
+      font-size: 0.85rem;
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 90%);
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+    }
+
+    .empty-msg {
+      color: var(--sl-color-gray-3);
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    @media (max-width: 48rem) {
+      .page-title {
+        font-size: 2rem !important;
+      }
+      .glass-tag {
+        padding: 0.5rem 1rem;
+      }
+    }
   </style>
 </StarlightPage>
-

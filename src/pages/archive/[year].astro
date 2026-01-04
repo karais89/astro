@@ -1,60 +1,172 @@
 ---
-import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
-import { getCollection } from 'astro:content';
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const entries = (await getCollection('docs', ({ id, data }) => {
-    const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
-    return inSections && (data as any)?.draft !== true;
-  }))
-    .filter((e) => (e.data as any)?.date);
+  const entries = (
+    await getCollection("docs", ({ id, data }) => {
+      const inSections =
+        id.startsWith("til/") ||
+        id.startsWith("coding-test/") ||
+        id.startsWith("blog/");
+      return inSections && (data as any)?.draft !== true;
+    })
+  ).filter((e) => (e.data as any)?.date);
   const years = Array.from(
-    new Set(entries.map((e) => new Date(((e.data as any)?.date) as string).getFullYear()))
+    new Set(
+      entries.map((e) =>
+        new Date((e.data as any)?.date as string).getFullYear(),
+      ),
+    ),
   ).sort((a, b) => b - a);
   return years.map((y) => ({ params: { year: String(y) } }));
 }
 
-const base = import.meta.env.BASE_URL || '/';
+const base = import.meta.env.BASE_URL || "/";
 const { year } = Astro.params;
 const targetYear = Number(year);
-if (!Number.isFinite(targetYear)) throw new Error('잘못된 연도입니다');
+if (!Number.isFinite(targetYear)) throw new Error("잘못된 연도입니다");
 
-const entries = (await getCollection('docs', ({ id, data }) => {
-  const inSections = id.startsWith('til/') || id.startsWith('coding-test/') || id.startsWith('blog/');
-  return inSections && (data as any)?.draft !== true;
-}))
+const entries = (
+  await getCollection("docs", ({ id, data }) => {
+    const inSections =
+      id.startsWith("til/") ||
+      id.startsWith("coding-test/") ||
+      id.startsWith("blog/");
+    return inSections && (data as any)?.draft !== true;
+  })
+)
   .filter((e) => (e.data as any)?.date)
-  .filter((e) => new Date(((e.data as any)?.date) as string).getFullYear() === targetYear)
+  .filter(
+    (e) =>
+      new Date((e.data as any)?.date as string).getFullYear() === targetYear,
+  )
   .sort((a, b) => {
-    const ad = new Date(((a.data as any)?.date) as string).getTime();
-    const bd = new Date(((b.data as any)?.date) as string).getTime();
+    const ad = new Date((a.data as any)?.date as string).getTime();
+    const bd = new Date((b.data as any)?.date as string).getTime();
     return bd - ad;
   });
 
-const hrefFor = (entry: any) => `${base}${(entry as any).slug ?? (entry as any).id}/`;
+const hrefFor = (entry: any) =>
+  `${base}${(entry as any).slug ?? (entry as any).id}/`;
 const frontmatter = {
   title: `${targetYear} · 전체 아카이브`,
   description: `${targetYear}년 작성 글 모음 (TIL, 코딩테스트, 블로그)`,
-  editUrl: 'https://github.com/Lonpeach/astro/edit/main/src/pages/archive/[year].astro',
+  editUrl:
+    "https://github.com/Lonpeach/astro/edit/main/src/pages/archive/[year].astro",
+  tableOfContents: false,
+  preferBodyH1: true,
 };
 ---
-<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
-  <p><a href={`${base}archive/`}>← 아카이브</a></p>
 
-  {entries.length === 0 ? (
-    <p>해당 연도의 글이 없습니다.</p>
-  ) : (
-    <ul>
-      {entries.map((post) => (
-        <li>
-          <a href={hrefFor(post)}>{(post as any).data?.title ?? (post as any).slug ?? post.id}</a>
-          {((post.data as any)?.date || (post.data as any)?.updatedAt) && (
-            <small style="margin-left: 0.5rem; opacity: 0.7;">
-              {new Date(((post.data as any)?.date ?? (post.data as any)?.updatedAt) as string).toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul' })}
-            </small>
-          )}
-        </li>
-      ))}
-    </ul>
-  )}
+<StarlightPage frontmatter={frontmatter} hasSidebar={false}>
+  <header class="archive-header">
+    <a href={`${base}archive/`} class="back-btn">
+      <span class="icon">←</span>
+      <span>아카이브</span>
+    </a>
+    <h1 class="archive-title page-title-gradient">
+      {targetYear}
+      <span class="sep">·</span> 전체 아카이브
+    </h1>
+  </header>
+
+  {
+    entries.length === 0 ? (
+      <p class="empty-msg">해당 연도의 글이 없습니다.</p>
+    ) : (
+      <div class="post-grid">
+        {entries.map((post) => {
+          const href = hrefFor(post);
+          const title =
+            (post as any).data?.title ?? (post as any).slug ?? post.id;
+          const d = new Date(
+            ((post.data as any)?.date ??
+              (post.data as any)?.updatedAt) as string,
+          );
+          const dateIso = d.toISOString().slice(0, 10);
+          const dateKST = d.toLocaleDateString("ko-KR", {
+            timeZone: "Asia/Seoul",
+          });
+          const desc = (post.data as any)?.description;
+          const section = post.id.split("/")[0].toUpperCase();
+
+          return (
+            <a href={href} class="glass-card-post">
+              <div class="card-glow-bg" />
+              <div class="inner">
+                <div class="meta">
+                  <span class="meta-tag">{section}</span>
+                  <time datetime={dateIso} class="meta-date">
+                    {dateKST}
+                  </time>
+                </div>
+                <h3 class="post-title">{title}</h3>
+                {desc && <p class="post-desc">{desc}</p>}
+                <div class="action">
+                  <span>더 보기</span>
+                  <span class="icon">→</span>
+                </div>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    )
+  }
+
+  <style>
+    .archive-header {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 3rem;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: var(--sl-color-accent);
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 95%);
+      border: 1px solid
+        color-mix(in srgb, var(--sl-color-accent), transparent 80%);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      margin-bottom: 1.5rem;
+    }
+    .back-btn:hover {
+      background: color-mix(in srgb, var(--sl-color-accent), transparent 85%);
+      border-color: var(--sl-color-accent);
+      transform: translateX(-2px);
+    }
+    .archive-title {
+      font-size: 2.75rem !important;
+      font-weight: 900 !important;
+      color: var(--sl-color-white);
+      letter-spacing: -0.02em;
+      margin: 0 !important;
+    }
+    .archive-title .sep {
+      color: var(--sl-color-gray-4);
+      margin: 0 0.5rem;
+    }
+    .post-grid {
+      margin-top: 1rem;
+    }
+    .empty-msg {
+      color: var(--sl-color-gray-3);
+      padding: 4rem 0;
+      text-align: center;
+    }
+
+    @media (max-width: 48rem) {
+      .archive-title {
+        font-size: 2rem !important;
+      }
+    }
+  </style>
 </StarlightPage>

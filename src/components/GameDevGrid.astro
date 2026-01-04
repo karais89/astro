@@ -1,0 +1,262 @@
+---
+import { getCollection } from "astro:content";
+
+interface Section {
+    key: string;
+    label?: string;
+    href?: string;
+    className?: string; // used for border color or type
+}
+
+interface Props {
+    count?: number;
+    sections?: Section[];
+    showQuickNav?: boolean;
+    showMoreLink?: boolean;
+    moreHref?: string;
+    title?: string;
+}
+
+const base = import.meta.env.BASE_URL || "/";
+const {
+    count = 6,
+    sections: providedSections,
+    showQuickNav = true,
+    showMoreLink = true,
+    moreHref,
+    title = "최근 글",
+} = Astro.props as Props;
+
+const defaultSections: Section[] = [
+    { key: "til", label: "TIL", href: `${base}til/`, className: "til" },
+    {
+        key: "coding-test",
+        label: "코딩테스트",
+        href: `${base}coding-test/`,
+        className: "coding",
+    },
+    { key: "blog", label: "블로그", href: `${base}blog/`, className: "blog" },
+];
+const sections: Section[] =
+    Array.isArray(providedSections) && providedSections.length > 0
+        ? providedSections
+        : defaultSections;
+
+// Default "전체 보기" destination
+const computedMoreHref =
+    moreHref ??
+    (sections.length === 1 ? `${base}${sections[0].key}/` : `${base}archive/`);
+
+const entries = await getCollection("docs", ({ id, data }) => {
+    const inSelected = sections.some((s) => id.startsWith(`${s.key}/`));
+    return inSelected && data?.draft !== true;
+});
+
+const getDate = (e: any) =>
+    new Date((e.data?.date ?? e.data?.updatedAt ?? 0) as string | number);
+const recent = entries
+    .filter((e) => !e.id.endsWith("/index"))
+    .sort((a, b) => Number(getDate(b)) - Number(getDate(a)))
+    .slice(0, count);
+
+function toPath(id: string) {
+    return id.endsWith("/index") ? id.slice(0, -"/index".length) : id;
+}
+function findSection(id: string): Section | undefined {
+    return sections.find((s) => id.startsWith(`${s.key}/`));
+}
+---
+
+<section class="modern-grid" aria-labelledby="grid-heading">
+    <div class="head">
+        <h2 id="grid-heading" class="section-title">
+            <span class="text-gradient">{title}</span>
+        </h2>
+
+        <div class="controls">
+            {
+                showQuickNav && (
+                    <nav class="filter-nav">
+                        {sections.map((s) => (
+                            <a
+                                href={s.href ?? `${base}${s.key}/`}
+                                class={`filter-pill`}
+                            >
+                                {s.label ?? s.key}
+                            </a>
+                        ))}
+                    </nav>
+                )
+            }
+
+            {
+                showMoreLink && (
+                    <a class="view-all-link" href={computedMoreHref}>
+                        전체 보기 <span class="arrow">→</span>
+                    </a>
+                )
+            }
+        </div>
+    </div>
+
+    {
+        recent.length === 0 ? (
+            <div class="empty-state">
+                <p>게시된 글이 없습니다.</p>
+            </div>
+        ) : (
+            <div class="grid">
+                {recent.map((e) => {
+                    const path = toPath(e.id);
+                    const href = `${base}${path}/`;
+                    const d = getDate(e);
+                    const dateIso = isNaN(d.getTime())
+                        ? ""
+                        : d.toISOString().slice(0, 10);
+                    let dateKST = dateIso;
+                    try {
+                        dateKST = d.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                        });
+                    } catch {}
+                    const desc = e.data?.description as string | undefined;
+                    const sec = findSection(e.id);
+                    const secLabel = sec?.label ?? sec?.key ?? "";
+
+                    return (
+                        <a href={href} class="glass-card-post">
+                            <div class="card-glow-bg" />
+                            <div class="inner">
+                                <div class="meta">
+                                    <span class="meta-tag">{secLabel}</span>
+                                    {dateIso && (
+                                        <time
+                                            datetime={dateIso}
+                                            class="meta-date"
+                                        >
+                                            {dateKST}
+                                        </time>
+                                    )}
+                                </div>
+
+                                <h3 class="post-title">
+                                    {e.data.title ?? path}
+                                </h3>
+
+                                {desc && <p class="post-desc">{desc}</p>}
+
+                                <div class="action">
+                                    <span>더 보기</span>
+                                    <span class="icon">→</span>
+                                </div>
+                            </div>
+                        </a>
+                    );
+                })}
+            </div>
+        )
+    }
+
+    <style>
+        .modern-grid {
+            position: relative;
+            margin-top: 4rem;
+            padding: 0 1rem;
+        }
+
+        /* Head */
+        .head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Filter Nav */
+        .filter-nav {
+            display: flex;
+            gap: 0.5rem;
+            background: color-mix(
+                in srgb,
+                var(--sl-color-gray-6),
+                transparent 80%
+            );
+            padding: 0.3rem;
+            border-radius: 999px;
+            border: 1px solid var(--sl-color-gray-5);
+        }
+
+        .filter-pill {
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 999px;
+            color: var(--sl-color-gray-3);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .filter-pill:hover {
+            color: var(--sl-color-white);
+            background: color-mix(
+                in srgb,
+                var(--sl-color-gray-5),
+                transparent 50%
+            );
+        }
+
+        /* View All Link */
+        .view-all-link {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--sl-color-text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: gap 0.2s;
+        }
+        .view-all-link:hover {
+            gap: 0.6rem;
+        }
+        .arrow {
+            transition: transform 0.2s;
+        }
+
+        /* Grid component uses global .post-grid class */
+        .grid {
+            composes: post-grid;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+        @media (min-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 1rem;
+        }
+    </style>
+</section>
