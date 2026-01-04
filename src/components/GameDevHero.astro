@@ -40,7 +40,11 @@ const {
                 <div class="card-content">
                     <div class="profile-header">
                         <div class="avatar-circle">
-                            <span class="initials">DEV</span>
+                            <img
+                                src={`${base}avatar.jpg`}
+                                alt="Dev Avatar"
+                                class="avatar-img"
+                            />
                         </div>
                         <div class="profile-info">
                             <span class="name">Client Engineer</span>
@@ -112,7 +116,7 @@ const {
     <style>
         .modern-hero {
             position: relative;
-            padding: 4rem 1rem;
+            padding: 2rem 1rem; /* Reduced padding from 4rem */
             overflow: hidden;
             background: radial-gradient(
                 ellipse at top,
@@ -233,9 +237,9 @@ const {
         }
 
         .title {
-            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-size: clamp(2rem, 8vw, 4rem); /* Improved mobile font size */
             font-weight: 800;
-            line-height: 1.1;
+            line-height: 1.15; /* Slightly increased line height */
             margin: 0 0 1.5rem;
             color: var(--sl-color-white);
             letter-spacing: -0.02em;
@@ -301,10 +305,12 @@ const {
 
         .visual-content {
             position: relative;
-            height: 400px;
+            height: auto; /* Changed from 400px fixed to auto */
+            min-height: 320px;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 2rem 0;
         }
 
         .glass-card {
@@ -373,9 +379,15 @@ const {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: var(--sl-color-text-invert);
+            overflow: hidden; /* Added to clip the image */
+            border: 2px solid
+                color-mix(in srgb, var(--sl-color-accent), transparent 50%);
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .profile-info {
@@ -519,6 +531,48 @@ const {
             }
             50% {
                 transform: translate(10px, -5px);
+            }
+        }
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .modern-hero {
+                padding-top: 5rem;
+                padding-bottom: 3rem;
+            }
+
+            .text-content {
+                align-items: center;
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            .badge-pill {
+                margin-bottom: 1rem;
+            }
+
+            .subtitle {
+                margin-bottom: 2rem;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .visual-content {
+                min-height: unset;
+                overflow: visible;
+                padding-top: 1rem;
+            }
+
+            .main-card {
+                transform: scale(0.9);
+                margin: 0 auto;
+            }
+
+            /* Hide floating cards on mobile to avoid overlap and clutter */
+            .float-card {
+                display: none;
             }
         }
     </style>

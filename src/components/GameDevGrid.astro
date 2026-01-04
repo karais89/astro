@@ -164,6 +164,8 @@ function findSection(id: string): Section | undefined {
             position: relative;
             margin-top: 4rem;
             padding: 0 1rem;
+            max-width: 100%;
+            overflow: hidden; /* Prevent horizontal spill from children */
         }
 
         /* Head */
@@ -257,6 +259,58 @@ function findSection(id: string): Section | undefined {
             color: rgba(255, 255, 255, 0.4);
             background: rgba(255, 255, 255, 0.02);
             border-radius: 1rem;
+        }
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .modern-grid {
+                margin-top: 2rem;
+            }
+
+            .head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            .controls {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .filter-nav {
+                max-width: calc(
+                    100% - 100px
+                ); /* Leave room for view-all-link */
+                overflow-x: auto;
+                padding: 0.2rem;
+                scrollbar-width: none; /* Hide scrollbar for clean look */
+            }
+            .filter-nav::-webkit-scrollbar {
+                display: none;
+            }
+
+            .filter-pill {
+                white-space: nowrap;
+                padding: 0.35rem 0.75rem;
+                font-size: 0.8rem;
+            }
+
+            .view-all-link {
+                white-space: nowrap;
+                font-size: 0.8rem;
+            }
+
+            .grid {
+                gap: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.75rem;
+            }
         }
     </style>
 </section>
