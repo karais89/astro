@@ -225,7 +225,7 @@ const hasToc = Boolean(starlightRoute.toc);
 		}
 
 		/* Hide redundant header on mobile inside our custom toggle */
-		@media (max-width: 72rem) {
+		@media (max-width: 112.5rem) {
 			/* Hide EVERY redundant header/toggle inside our TOC content area ONLY on mobile-toggle mode */
 			.mobile-toc-toggle[open] + .splash-toc-content :global(h2),
 			.mobile-toc-toggle[open] + .splash-toc-content :global(summary),
@@ -304,6 +304,20 @@ const hasToc = Boolean(starlightRoute.toc);
 			gap: 0.4rem;
 		}
 
+		/* Indent nested lists (H3+) */
+		.splash-floating-toc__inner :global(.right-sidebar-panel ul ul) {
+			padding-left: 1rem;
+			margin-left: 0.4rem;
+			border-left: 1px solid
+				color-mix(
+					in srgb,
+					var(--sl-color-hairline-light) 15%,
+					transparent 85%
+				);
+			gap: 0.2rem;
+			margin-top: 0.2rem;
+		}
+
 		.splash-floating-toc__inner :global(.right-sidebar-panel li) {
 			list-style: none;
 		}
@@ -318,6 +332,13 @@ const hasToc = Boolean(starlightRoute.toc);
 			border-left: 2px solid transparent;
 			transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 			width: 100%;
+		}
+
+		/* Sub-item a links (smaller and more subtle) */
+		.splash-floating-toc__inner :global(.right-sidebar-panel ul ul a) {
+			font-size: 0.8125rem;
+			padding-block: 0.35rem;
+			color: var(--sl-color-gray-4);
 		}
 
 		.splash-floating-toc__inner :global(.right-sidebar-panel a:hover),
@@ -351,7 +372,7 @@ const hasToc = Boolean(starlightRoute.toc);
 			width: 100%;
 		}
 
-		@media (min-width: 72rem) {
+		@media (min-width: 112.5rem) {
 			.splash-main-pane {
 				max-width: var(--sl-content-width);
 				margin-inline: auto;
@@ -429,7 +450,7 @@ const hasToc = Boolean(starlightRoute.toc);
 			isolation: isolate;
 		}
 
-		@media (min-width: 72rem) {
+		@media (min-width: 112.5rem) {
 			.right-sidebar-container {
 				order: 2;
 				position: relative;
